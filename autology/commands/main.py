@@ -17,7 +17,9 @@ def _build_arguments():
 
 def _load_plugins():
     from autology.reports.timeline import register_plugin as register_timeline_plugin
+    from autology.reports.index import register_plugin as register_index_plugin
     register_timeline_plugin()
+    register_index_plugin()
 
 
 def main():
@@ -47,6 +49,8 @@ def main():
 
     dates = []
 
+    ProcessingTopics.BEGIN.publish()
+
     # Now need to process each of the files in order, and build up a master static page for the content.
     for year in sorted(sorted_files.keys()):
         month_files = sorted_files[year]
@@ -66,7 +70,7 @@ def main():
                 dates.append(date_to_process)
                 ProcessingTopics.DAY_END.publish(date=date_to_process)
 
-    publish('index.html', 'index.html', dates=dates)
+    ProcessingTopics.END.publish()
 
 
 if __name__ == '__main__':

@@ -26,7 +26,15 @@ class ProcessingTopics(PubSubEnumMixin, enum.Enum):
       parameters: date - datetime.date object for the day that was processed.
     PROCESS_FILE -
       parameters: file - the file that should be looked over.
+    BEGIN -
+      Event that is fired off before processing files.
+      parameters: none
+    END -
+      Event that is fired off when all of the files have been processed.
+      parameters: none
     """
     DAY_START = 'day_start'
     DAY_END = 'day_end'
     PROCESS_FILE = 'process_file'
+    BEGIN = 'begin'
+    END = 'end'
