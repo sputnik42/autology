@@ -7,9 +7,14 @@ try:
     from yaml import CLoader as Loader
 except ImportError:
     from yaml import Loader
+from dict_recursive_update import recursive_update as _update
+import munch
 
-
-settings = {
+# This is the default settings object. It is in dictionary form, but will be accessed using object notation once the
+# configuration file has been loaded.
+#
+# i.e. processing['output'] will be processing.output instead.
+_settings = {
     'processing': {
         'inputs': ['log'],
         'output': 'output',
@@ -21,19 +26,20 @@ settings = {
 def load_configuration_file(file_name):
     """
     Load the requested configuration file into memory so that the rest of the application can be configured.
-    :param file_name:
-    :return:
+    :param file_name: filename to open and load settings from
+    :return: object containing settings.
     """
-    global settings
+    global _settings
 
     try:
         with open(file_name, 'r') as configuration_file:
-            settings.update(load(configuration_file, Loader=Loader))
+            _update(_settings, load(configuration_file, Loader=Loader))
     except FileNotFoundError:
         pass
 
-    return settings
+    return munch.Munch.fromDict(_settings)
 
 
 def get_configuration():
-    return settings
+    """Returns objects with unmodified settings."""
+    return munch.Munch.fromDict(_settings)

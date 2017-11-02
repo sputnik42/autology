@@ -2,10 +2,9 @@ import argparse
 import datetime
 import pathlib
 
-from jinja2 import Environment, FileSystemLoader
-
 from autology.configuration import load_configuration_file as _load_configuration_file
 from autology.events import ProcessingTopics
+from autology.publishing import initialize as initialize_publishing, publish
 
 
 def _build_arguments():
@@ -26,16 +25,13 @@ def main():
     _load_plugins()
 
     configuration_settings = _load_configuration_file(args.config)
-
-    # Verify that the output directory exists before starting to write out the content
-    output_path = pathlib.Path(configuration_settings['processing']['output'])
-    output_path.mkdir(exist_ok=True)
+    initialize_publishing(configuration_settings)
 
     sorted_files = {}
 
     # Need to find all of the files that are stored in the input_files directories in order to start building the
     # reports that will be used to generate the static log files.
-    for input_path in configuration_settings['processing']['inputs']:
+    for input_path in configuration_settings.processing.inputs:
         search_path = pathlib.Path(input_path)
 
         # Currently going to make the assumption that everyone is using the path naming convention that I'm dictating
@@ -70,14 +66,7 @@ def main():
                 dates.append(date_to_process)
                 ProcessingTopics.DAY_END.publish(date=date_to_process)
 
-    # Have to process the main template as well
-    env = Environment(
-        loader=FileSystemLoader(configuration_settings['processing']['templates'])
-    )
-    root_template = env.get_template('index.html')
-    output_content = root_template.render(dates=dates)
-    output_file = pathlib.Path(configuration_settings['processing']['output'], 'index.html')
-    output_file.write_text(output_content)
+    publish('index.html', 'index.html', dates=dates)
 
 
 if __name__ == '__main__':
