@@ -6,7 +6,8 @@ import datetime
 import frontmatter
 import markdown
 
-from autology.events import ProcessingTopics
+from autology.reports.models import Report
+from autology.events import ProcessingTopics, ReportingTopics
 from autology.publishing import publish
 
 # The current date that is being processed.
@@ -14,6 +15,9 @@ _current_date = datetime.date.today()
 
 # The content that is stored for each individual day
 _day_content = []
+
+# Dates that have been collected
+_dates = []
 
 
 def register_plugin():
@@ -24,6 +28,7 @@ def register_plugin():
     ProcessingTopics.DAY_START.subscribe(_start_day_processing)
     ProcessingTopics.PROCESS_FILE.subscribe(_data_processor)
     ProcessingTopics.DAY_END.subscribe(_end_day_processing)
+    ProcessingTopics.END.subscribe(_end_processing)
 
 
 def _start_day_processing(date=None):
@@ -35,6 +40,7 @@ def _start_day_processing(date=None):
     global _day_content, _current_date
     _day_content = []
     _current_date = date
+    _dates.append(date)
 
 
 def _data_processor(file=None):
@@ -67,3 +73,8 @@ def _end_day_processing(date=None):
     publish('day.html', "{:04d}{:02d}{:02d}.html".format(_current_date.year, _current_date.month,
                                                          _current_date.day), content=markdown_result)
 
+
+def _end_processing():
+    publish('timeline_report.html', 'timeline_report.html', dates=_dates)
+    ReportingTopics.REGISTER_REPORT.publish(report=Report('Timeline', 'List of all report files',
+                                                          'timeline_report.html'))

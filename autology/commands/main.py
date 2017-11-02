@@ -3,8 +3,8 @@ import datetime
 import pathlib
 
 from autology.configuration import load_configuration_file as _load_configuration_file
-from autology.events import ProcessingTopics
-from autology.publishing import initialize as initialize_publishing, publish
+from autology.events import ProcessingTopics, ReportingTopics
+from autology.publishing import initialize as initialize_publishing
 
 
 def _build_arguments():
@@ -55,8 +55,12 @@ def main():
     for year in sorted(sorted_files.keys()):
         month_files = sorted_files[year]
 
+        ProcessingTopics.YEAR_START.publish(date=datetime.date(year=year, month=1, day=1))
+
         for month in sorted(month_files.keys()):
             day_files = month_files[month]
+
+            ProcessingTopics.MONTH_START.publish(date=datetime.date(year=year, month=month, day=1))
 
             for day in sorted(day_files.keys()):
                 time_files = day_files[day]
@@ -70,7 +74,13 @@ def main():
                 dates.append(date_to_process)
                 ProcessingTopics.DAY_END.publish(date=date_to_process)
 
+            ProcessingTopics.MONTH_END.publish(date=datetime.date(year=year, month=month, day=1))
+
+        ProcessingTopics.YEAR_END.publish(date=datetime.date(year=year, month=1, day=1))
+
     ProcessingTopics.END.publish()
+
+    ReportingTopics.BUILD_MASTER.publish()
 
 
 if __name__ == '__main__':
