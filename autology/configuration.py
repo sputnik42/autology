@@ -33,3 +33,7 @@ def load_configuration_file(file_name):
         pass
 
     return settings
+
+
+def get_configuration():
+    return settings

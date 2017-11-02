@@ -2,11 +2,10 @@ import argparse
 import datetime
 import pathlib
 
-import frontmatter
-import markdown
 from jinja2 import Environment, FileSystemLoader
 
 from autology.configuration import load_configuration_file as _load_configuration_file
+from autology.events import ProcessingTopics
 
 
 def _build_arguments():
@@ -17,10 +16,20 @@ def _build_arguments():
     return parser.parse_args()
 
 
+def _load_plugins():
+    from autology.reports.timeline import register_plugin as register_timeline_plugin
+    register_timeline_plugin()
+
+
 def main():
     args = _build_arguments()
+    _load_plugins()
 
     configuration_settings = _load_configuration_file(args.config)
+
+    # Verify that the output directory exists before starting to write out the content
+    output_path = pathlib.Path(configuration_settings['processing']['output'])
+    output_path.mkdir(exist_ok=True)
 
     sorted_files = {}
 
@@ -31,7 +40,6 @@ def main():
 
         # Currently going to make the assumption that everyone is using the path naming convention that I'm dictating
         # which is YYYY/MM/DD/file.ext
-
         for file_component in search_path.glob('*/*/*/*'):
             # Store all of the files into a dictionary containing the keys and a list of the files that are associated
             # with that day
@@ -46,48 +54,21 @@ def main():
     # Now need to process each of the files in order, and build up a master static page for the content.
     for year in sorted(sorted_files.keys()):
         month_files = sorted_files[year]
+
         for month in sorted(month_files.keys()):
             day_files = month_files[month]
-            for day in sorted(day_files.keys()):
-                # Hand the content over to the handlers that will generate the content which will then be stored
-                # in a list ordered by timestamps.
 
+            for day in sorted(day_files.keys()):
                 time_files = day_files[day]
 
-                day_content = []
+                date_to_process = datetime.date(year, month, day)
+                ProcessingTopics.DAY_START.publish(date=date_to_process)
+
                 for content_file in time_files:
-                    if content_file.suffix == '.md':
-                        time = content_file.stem
-                        hours = time[0:2]
-                        minutes = time[2:]
+                    ProcessingTopics.PROCESS_FILE.publish(file=content_file)
 
-                        post = frontmatter.load(content_file)
-
-                        day_content.append((datetime.datetime(year, month, day, int(hours), int(minutes)),
-                                            post.content))
-
-                # Now output the content has html so that it can be rendered
-                markdown_conversion = markdown.Markdown()
-                markdown_result = ''
-                for content_day, content in sorted(day_content, key=lambda x: x[0]):
-                    markdown_result += markdown_conversion.reset().convert(content)
-
-                # Render the content through jinja and save it off to a file.
-                env = Environment(
-                    loader=FileSystemLoader(configuration_settings['processing']['templates'])
-                )
-                template = env.get_template('day.html')
-                output_content = template.render(content=markdown_result)
-
-                # Save the file off to the filesystem
-                output_path = pathlib.Path(configuration_settings['processing']['output'])
-                output_path.mkdir(exist_ok=True)
-
-                output_file = pathlib.Path(configuration_settings['processing']['output'],
-                                           "{:04d}{:02d}{:02d}.html".format(year, month, day))
-                output_file.write_text(output_content)
-
-                dates.append(datetime.date(year, month, day))
+                dates.append(date_to_process)
+                ProcessingTopics.DAY_END.publish(date=date_to_process)
 
     # Have to process the main template as well
     env = Environment(
