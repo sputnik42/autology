@@ -16,7 +16,7 @@ class PubSubEnumMixin:
 
 
 @enum.unique
-class ProcessingTopics(PubSubEnumMixin, enum.Enum):
+class Processing(PubSubEnumMixin, enum.Enum):
     """
     Enumeration that defines the lifecycle of processing the collection of files in the logs.
     DAY_START -
@@ -24,7 +24,9 @@ class ProcessingTopics(PubSubEnumMixin, enum.Enum):
     DAY_END -
       parameters: date - datetime.date object for the day that was processed.
     PROCESS_FILE -
-      parameters: file - the file that should be looked over.
+      parameters:
+        file - the file that should be looked over.
+        date - the date that the file was saved in.
     BEGIN -
       Event that is fired off before processing files.
       parameters: none
@@ -40,7 +42,7 @@ class ProcessingTopics(PubSubEnumMixin, enum.Enum):
 
 
 @enum.unique
-class ReportingTopics(PubSubEnumMixin, enum.Enum):
+class Reporting(PubSubEnumMixin, enum.Enum):
     """
     Topics related to notifying of new reports based on the processed data.
 

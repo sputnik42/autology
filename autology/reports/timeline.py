@@ -7,7 +7,7 @@ import frontmatter
 import markdown
 
 from autology.reports.models import Report
-from autology.events import ProcessingTopics, ReportingTopics
+from autology import topics
 from autology.publishing import publish
 
 # The current date that is being processed.
@@ -25,10 +25,10 @@ def register_plugin():
     Register for all of the required events that will be fired off by the main loop
     :return:
     """
-    ProcessingTopics.DAY_START.subscribe(_start_day_processing)
-    ProcessingTopics.PROCESS_FILE.subscribe(_data_processor)
-    ProcessingTopics.DAY_END.subscribe(_end_day_processing)
-    ProcessingTopics.END.subscribe(_end_processing)
+    topics.Processing.DAY_START.subscribe(_start_day_processing)
+    topics.Processing.PROCESS_FILE.subscribe(_data_processor)
+    topics.Processing.DAY_END.subscribe(_end_day_processing)
+    topics.Processing.END.subscribe(_end_processing)
 
 
 def _start_day_processing(date=None):
@@ -43,7 +43,7 @@ def _start_day_processing(date=None):
     _dates.append(date)
 
 
-def _data_processor(file=None):
+def _data_processor(file, date):
     """
     Checks to see if the data can be processed and stores any data required locally.
     :param file:
@@ -76,5 +76,5 @@ def _end_day_processing(date=None):
 
 def _end_processing():
     publish('timeline_report.html', 'timeline_report.html', dates=_dates)
-    ReportingTopics.REGISTER_REPORT.publish(report=Report('Timeline', 'List of all report files',
-                                                          'timeline_report.html'))
+    topics.Reporting.REGISTER_REPORT.publish(report=Report('Timeline', 'List of all report files',
+                                                           'timeline_report.html'))

@@ -3,7 +3,7 @@ import datetime
 import pathlib
 
 from autology.configuration import load_configuration_file as _load_configuration_file
-from autology.events import ProcessingTopics, ReportingTopics
+from autology import topics
 from autology.publishing import initialize as initialize_publishing
 
 
@@ -18,8 +18,10 @@ def _build_arguments():
 def _load_plugins():
     from autology.reports.timeline import register_plugin as register_timeline_plugin
     from autology.reports.index import register_plugin as register_index_plugin
+    from autology.reports.project import register_project_plugin
     register_timeline_plugin()
     register_index_plugin()
+    register_project_plugin()
 
 
 def main():
@@ -49,7 +51,7 @@ def main():
 
     dates = []
 
-    ProcessingTopics.BEGIN.publish()
+    topics.Processing.BEGIN.publish()
 
     # Now need to process each of the files in order, and build up a master static page for the content.
     for year in sorted(sorted_files.keys()):
@@ -62,17 +64,17 @@ def main():
                 time_files = day_files[day]
 
                 date_to_process = datetime.date(year, month, day)
-                ProcessingTopics.DAY_START.publish(date=date_to_process)
+                topics.Processing.DAY_START.publish(date=date_to_process)
 
                 for content_file in time_files:
-                    ProcessingTopics.PROCESS_FILE.publish(file=content_file)
+                    topics.Processing.PROCESS_FILE.publish(file=content_file, date=date_to_process)
 
                 dates.append(date_to_process)
-                ProcessingTopics.DAY_END.publish(date=date_to_process)
+                topics.Processing.DAY_END.publish(date=date_to_process)
 
-    ProcessingTopics.END.publish()
+    topics.Processing.END.publish()
 
-    ReportingTopics.BUILD_MASTER.publish()
+    topics.Reporting.BUILD_MASTER.publish()
 
 
 if __name__ == '__main__':
