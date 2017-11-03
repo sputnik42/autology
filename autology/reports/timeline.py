@@ -5,6 +5,7 @@ import datetime
 
 import frontmatter
 import markdown
+import pathlib
 
 from autology.reports.models import Report
 from autology import topics
@@ -18,6 +19,10 @@ _day_content = []
 
 # Dates that have been collected
 _dates = []
+
+# Default template definitions
+TIMELINE_TEMPLATE_PATH = pathlib.Path('timeline', 'timeline_report.html')
+DAY_TEMPLATE_PATH = pathlib.Path('timeline', 'day.html')
 
 
 def register_plugin():
@@ -70,11 +75,11 @@ def _end_day_processing(date=None):
     for content_day, content in sorted(_day_content, key=lambda x: x[0]):
         markdown_result += markdown_conversion.reset().convert(content)
 
-    publish('day.html', "{:04d}{:02d}{:02d}.html".format(_current_date.year, _current_date.month,
-                                                         _current_date.day), content=markdown_result)
+    publish(DAY_TEMPLATE_PATH, "{:04d}{:02d}{:02d}.html".format(_current_date.year, _current_date.month,
+                                                                _current_date.day), content=markdown_result)
 
 
 def _end_processing():
-    publish('timeline_report.html', 'timeline_report.html', dates=_dates)
+    publish(TIMELINE_TEMPLATE_PATH, 'timeline_report.html', dates=_dates)
     topics.Reporting.REGISTER_REPORT.publish(report=Report('Timeline', 'List of all report files',
                                                            'timeline_report.html'))

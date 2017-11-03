@@ -1,9 +1,12 @@
 """Report that builds the index file."""
 
+import pathlib
 from autology import topics
 from autology.publishing import publish
 
 _reports = []
+
+INDEX_TEMPLATE_PATH = pathlib.Path('index', 'index.html')
 
 
 def register_plugin():
@@ -21,4 +24,4 @@ def _new_report_handler(report=None):
 
 
 def _finish_processing():
-    publish('index.html', 'index.html', reports=_reports)
+    publish(INDEX_TEMPLATE_PATH, 'index.html', reports=_reports)

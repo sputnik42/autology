@@ -34,7 +34,7 @@ def publish(template, output_file, **kwargs):
     :param kwargs:
     :return:
     """
-    root_template = _environment.get_template(template)
+    root_template = _environment.get_template(str(template))
     output_content = root_template.render(**kwargs)
     output_file = pathlib.Path(_output_path, output_file)
     output_file.write_text(output_content)
