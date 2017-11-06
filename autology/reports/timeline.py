@@ -27,6 +27,14 @@ DAY_TEMPLATE_PATH = pathlib.Path('timeline', 'day.html')
 
 def register_plugin():
     """
+    Subscribe to the initialize method and add default configuration values to the settings object.
+    :return:
+    """
+    topics.Application.INITIALIZE.subscribe(_initialize)
+
+
+def _initialize():
+    """
     Register for all of the required events that will be fired off by the main loop
     :return:
     """

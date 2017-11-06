@@ -4,7 +4,6 @@ import pathlib
 
 from autology.configuration import load_configuration_file as _load_configuration_file
 from autology import topics
-from autology.publishing import initialize as initialize_publishing
 
 
 def _build_arguments():
@@ -19,6 +18,8 @@ def _load_plugins():
     from autology.reports.timeline import register_plugin as register_timeline_plugin
     from autology.reports.index import register_plugin as register_index_plugin
     from autology.reports.project import register_project_plugin
+    from autology.publishing import register_plugin as register_publishing
+    register_publishing()
     register_timeline_plugin()
     register_index_plugin()
     register_project_plugin()
@@ -26,10 +27,15 @@ def _load_plugins():
 
 def main():
     args = _build_arguments()
+
+    # Load the plugins and allow them to set default properties in the configuration data object.
     _load_plugins()
 
+    # Override the default values in configuration with the values from settings file.
     configuration_settings = _load_configuration_file(args.config)
-    initialize_publishing(configuration_settings)
+
+    # Initialize all of the plugins in the architecture now that the settings have been loaded
+    topics.Application.INITIALIZE.publish()
 
     sorted_files = {}
 
@@ -75,6 +81,8 @@ def main():
     topics.Processing.END.publish()
 
     topics.Reporting.BUILD_MASTER.publish()
+
+    topics.Application.FINALIZE.publish()
 
 
 if __name__ == '__main__':

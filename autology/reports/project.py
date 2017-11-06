@@ -26,7 +26,12 @@ _defined_customers = {}
 
 
 def register_project_plugin():
-    """Register the subscribers for the project plugin."""
+    """ Subscribe to the initialize method and add default configuration values to the settings object. """
+    topics.Application.INITIALIZE.subscribe(_initialize)
+
+
+def _initialize():
+    """ Register for all of the required events that will be fired off by the main loop """
     topics.Processing.PROCESS_FILE.subscribe(_process_file)
     topics.Processing.END.subscribe(_build_report)
 

@@ -9,10 +9,13 @@ class PubSubEnumMixin:
     """Mixin that allows for the enumerations to publish and subscribe themselves."""
 
     def subscribe(self, listener):
-        return pub.subscribe(listener, self.value)
+        return pub.subscribe(listener, self._build_topic_name())
 
     def publish(self, **kwargs):
-        pub.sendMessage(self.value, **kwargs)
+        pub.sendMessage(self._build_topic_name(), **kwargs)
+
+    def _build_topic_name(self):
+        return "{}.{}".format(self.__class__.__name__.lower(), self.value)
 
 
 @enum.unique
@@ -53,3 +56,17 @@ class Reporting(PubSubEnumMixin, enum.Enum):
     """
     REGISTER_REPORT = 'register_report'
     BUILD_MASTER = 'build_master'
+
+
+@enum.unique
+class Application(PubSubEnumMixin, enum.Enum):
+    """
+    Topics related to notifying the lifecycle of the application.
+
+    INITIALIZE - initialize the plugins based on the configuration values
+      parameter: none
+    FINALIZE - called before shutting down the application
+      parameter: none
+    """
+    INITIALIZE = 'initialize'
+    FINALIZE = 'finalize'

@@ -17,10 +17,17 @@ import munch
 _settings = {
     'processing': {
         'inputs': ['log'],
-        'output': 'output',
-        'templates': 'templates'
     }
 }
+
+
+def add_default_configuration(key, configuration):
+    """
+    Method call that will add default settings, should only be called before initialize event is fired off
+    :param key: key to namespace the configuration settings away
+    :param configuration:
+    """
+    _settings[key] = configuration
 
 
 def load_configuration_file(file_name):
