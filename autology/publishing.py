@@ -26,15 +26,24 @@ def initialize(configuration_settings):
     _output_path.mkdir(exist_ok=True)
 
 
-def publish(template, output_file, **kwargs):
+def publish(template, output_file, context=None, **kwargs):
     """
     Notify jinja to publish the template to the output_file location with all of the context provided.
     :param template:
     :param output_file:
+    :param context:
     :param kwargs:
     :return:
     """
+    if not context:
+        context = {}
+
+    context.update(kwargs)
+
     root_template = _environment.get_template(str(template))
-    output_content = root_template.render(**kwargs)
+    output_content = root_template.render(context)
     output_file = pathlib.Path(_output_path, output_file)
+
+    # Verify that the path is possible.
+    output_file.parent.mkdir(exist_ok=True)
     output_file.write_text(output_content)
