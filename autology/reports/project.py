@@ -3,6 +3,9 @@ import frontmatter
 from autology import topics
 from yaml import load_all
 import datetime
+import pathlib
+from autology.reports.models import Report
+from autology.publishing import publish
 try:
     from yaml import CLoader as Loader
 except ImportError:
@@ -11,7 +14,8 @@ from dict_recursive_update import recursive_update as _r_update
 
 # Constants:
 DEFAULT_PROJECT_LENGTH = 60  # minutes
-
+MAIN_TEMPLATE_PATH = pathlib.Path('project', 'index.html')
+PROJECT_TEMPLATE_PATH = pathlib.Path('project', 'project.html')
 
 # This is a dictionary containing all of the defined projects, they key is a project identifier that is defined when
 # defining the project. Inside should be a dictionary containing a key of datetime object for an entry, and then the
@@ -24,13 +28,38 @@ _defined_customers = {}
 def register_project_plugin():
     """Register the subscribers for the project plugin."""
     topics.Processing.PROCESS_FILE.subscribe(_process_file)
-    topics.Processing.END.subscribe(_dump_data_structures)
+    topics.Processing.END.subscribe(_build_report)
 
 
-def _dump_data_structures():
-    print('Defined Projects: {}'.format(_defined_projects))
-    print('Defined Organizations: {}'.format(_defined_organizations))
-    print('Defined Customers: {}'.format(_defined_customers))
+def _build_report():
+    """Convert all the collated data into renderable templates."""
+    orphaned_projects = []
+
+    for project in _defined_projects.values():
+        organization = _defined_organizations.get(project.get('organization'))
+        if organization:
+            organization.setdefault('projects', []).append(project)
+        else:
+            orphaned_projects.append(project)
+
+        # Also need to provide a URL value for the projects
+        project['url'] = pathlib.Path('project', '{}.html'.format(project['id']))
+
+        # Now generate a report for each of the projects.
+        publish(PROJECT_TEMPLATE_PATH, project['url'], project=project)
+
+    main_context = {
+        'projects': _defined_projects.values(),
+        'organizations': _defined_organizations.values(),
+        'customers': _defined_customers.values(),
+    }
+
+    if orphaned_projects:
+        main_context['orphaned_projects'] = orphaned_projects
+
+    publish(MAIN_TEMPLATE_PATH, 'project/index.html', **main_context)
+    topics.Reporting.REGISTER_REPORT.publish(report=Report('Project', 'List of all project files',
+                                                           'project/index.html'))
 
 
 def _process_file(file, date):
@@ -56,12 +85,12 @@ def _process_markdown(file, date):
     if not post.keys():
         return
 
-    _process_yaml(frontmatter=post.metadata)
+    _process_yaml(front_matter=post.metadata)
 
     if 'mkl-project' in post.metadata and not isinstance(post['mkl-project'], dict):
 
         # Then is clearly must be a string
-        project_definition = _defined_projects.setdefault(post['mkl-project'], {})
+        project_definition = _defined_projects.setdefault(post['mkl-project'], {'id': post['mkl-project']})
         project_log = project_definition.setdefault('log', {})
 
         time = file.stem
@@ -86,15 +115,15 @@ def _process_markdown(file, date):
         project_definition['duration'] = time_on_project + duration
 
 
-def _process_yaml(file=None, frontmatter=None):
+def _process_yaml(file=None, front_matter=None):
     """Process the documents in a yaml file and update data structures according to the data values."""
 
     # Create a valid documents variable based on the parameters that are provided.
     if file:
         with open(file) as yaml_file:
             documents = [d for d in load_all(yaml_file, Loader=Loader)]
-    elif frontmatter:
-        documents = [frontmatter]
+    elif front_matter:
+        documents = [front_matter]
     else:
         documents = []
 
