@@ -11,9 +11,10 @@ try:
 except ImportError:
     from yaml import Loader
 from dict_recursive_update import recursive_update as _r_update
+from autology.utilities import log_file as log_file_utils
 
 # Constants:
-DEFAULT_PROJECT_LENGTH = 60  # minutes
+
 MAIN_TEMPLATE_PATH = pathlib.Path('project', 'index.html')
 PROJECT_TEMPLATE_PATH = pathlib.Path('project', 'project.html')
 
@@ -98,25 +99,15 @@ def _process_markdown(file, date):
         project_definition = _defined_projects.setdefault(post['mkl-project'], {'id': post['mkl-project']})
         project_log = project_definition.setdefault('log', {})
 
-        time = file.stem
-        hours = time[0:2]
-        minutes = time[2:]
+        log_date = log_file_utils.get_start_time(date, post.metadata, file)
 
-        time = datetime.time(int(hours), int(minutes))
-        log_date = datetime.datetime.combine(date, time)
         project_log[log_date] = project_definition
 
-        # Calculate how long the event lasts TODO: probably should be in a utility
+        # Calculate how long the event lasts
         time_on_project = project_definition.get('duration', datetime.timedelta())
 
-        if 'end_time' in post.metadata and post['end_time'] is not None:
-            end_time_hours = post['end_time'][0:2]
-            end_time_minutes = post['end_time'][3:]
-            end_time = datetime.datetime.combine(date, datetime.time(int(end_time_hours), int(end_time_minutes)))
-            duration = end_time - log_date
-        else:
-            duration = datetime.timedelta(minutes=DEFAULT_PROJECT_LENGTH)
-
+        log_end_date = log_file_utils.get_end_time(log_date, post.metadata)
+        duration = log_end_date - log_date
         project_definition['duration'] = time_on_project + duration
 
 

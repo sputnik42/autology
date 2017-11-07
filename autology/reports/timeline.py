@@ -10,6 +10,7 @@ import pathlib
 from autology.reports.models import Report
 from autology import topics
 from autology.publishing import publish
+from autology.utilities import log_file as log_file_utils
 
 # The current date that is being processed.
 _current_date = datetime.date.today()
@@ -65,14 +66,10 @@ def _data_processor(file, date):
     if file.suffix != '.md':
         return
 
-    time = file.stem
-    hours = time[0:2]
-    minutes = time[2:]
-
     post = frontmatter.load(file)
-    time = datetime.time(int(hours), int(minutes))
+    post_date = log_file_utils.get_start_time(date, post.metadata, file)
 
-    _day_content.append((datetime.datetime.combine(_current_date, time), post.content))
+    _day_content.append((post_date, post.content))
 
 
 def _end_day_processing(date=None):
