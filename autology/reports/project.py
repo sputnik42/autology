@@ -26,7 +26,7 @@ _defined_organizations = {}
 _defined_customers = {}
 
 
-def register_project_plugin():
+def register_plugin():
     """ Subscribe to the initialize method and add default configuration values to the settings object. """
     topics.Application.INITIALIZE.subscribe(_initialize)
 

@@ -15,14 +15,10 @@ def _build_arguments():
 
 
 def _load_plugins():
-    from autology.reports.timeline import register_plugin as register_timeline_plugin
-    from autology.reports.index import register_plugin as register_index_plugin
-    from autology.reports.project import register_project_plugin
-    from autology.publishing import register_plugin as register_publishing
-    register_publishing()
-    register_timeline_plugin()
-    register_index_plugin()
-    register_project_plugin()
+    from pkg_resources import iter_entry_points
+
+    for ep in iter_entry_points(group='autology_plugins'):
+        ep.load()()
 
 
 def main():
