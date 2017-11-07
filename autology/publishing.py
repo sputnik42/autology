@@ -20,7 +20,8 @@ def register_plugin():
     add_default_configuration('publishing',
                               {
                                   'templates': 'templates',
-                                  'output': 'output'
+                                  'output': 'output',
+                                  'url_root': ''
                               })
 
 
@@ -36,6 +37,9 @@ def _initialize():
     _environment = Environment(
         loader=FileSystemLoader(configuration_settings.publishing.templates)
     )
+
+    # Load up the custom filters
+    _environment.filters['autology_url'] = url_filter
 
     # Verify that the output directory exists before starting to write out the content
     _output_path = pathlib.Path(configuration_settings.publishing.output)
@@ -63,3 +67,11 @@ def publish(template, output_file, context=None, **kwargs):
     # Verify that the path is possible.
     output_file.parent.mkdir(exist_ok=True)
     output_file.write_text(output_content)
+
+
+def url_filter(url):
+    """Filter that will prepend the URL root for links in order to put the log in a directory on a webserver."""
+    config = get_configuration()
+    if config.publishing.url_root:
+        return "{}/{}".format(get_configuration().publishing.url_root, url)
+    return url
