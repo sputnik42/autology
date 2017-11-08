@@ -4,7 +4,6 @@ Timeline report that will process all of the files into a timeline in order to b
 import datetime
 
 import frontmatter
-import markdown
 import pathlib
 
 from autology.reports.models import Report
@@ -66,22 +65,17 @@ def _data_processor(file, date):
     if file.suffix != '.md':
         return
 
-    post = frontmatter.load(file)
-    post_date = log_file_utils.get_start_time(date, post.metadata, file)
+    entry = frontmatter.load(file)
+    entry_date = log_file_utils.get_start_time(date, entry.metadata, file)
 
-    _day_content.append((post_date, post.content))
+    _day_content.append((entry_date, entry))
 
 
 def _end_day_processing(date=None):
     """Publish the content of the collated day together."""
-    # Now output the content has html so that it can be rendered
-    markdown_conversion = markdown.Markdown()
-    markdown_result = ''
-    for content_day, content in sorted(_day_content, key=lambda x: x[0]):
-        markdown_result += markdown_conversion.reset().convert(content)
-
     publish(DAY_TEMPLATE_PATH, "{:04d}{:02d}{:02d}.html".format(_current_date.year, _current_date.month,
-                                                                _current_date.day), content=markdown_result)
+                                                                _current_date.day),
+            entries=sorted(_day_content, key=lambda x: x[0]))
 
 
 def _end_processing():

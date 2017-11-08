@@ -2,12 +2,14 @@
 Provides wrapper around common publishing functionality.
 """
 import pathlib
-from jinja2 import Environment, FileSystemLoader
+import markdown
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from autology import topics
 from autology.configuration import add_default_configuration, get_configuration
 
 _environment = None
 _output_path = None
+_markdown_conversion = None
 
 
 def register_plugin():
@@ -30,16 +32,21 @@ def _initialize():
     Initialize the jinja environment.
     :return:
     """
-    global _environment, _output_path
+    global _environment, _output_path, _markdown_conversion
     configuration_settings = get_configuration()
+
+    # Create markdown conversion object
+    _markdown_conversion = markdown.Markdown()
 
     # Load the same jinja environment for everyone
     _environment = Environment(
-        loader=FileSystemLoader(configuration_settings.publishing.templates)
+        loader=FileSystemLoader(configuration_settings.publishing.templates),
+        autoescape=select_autoescape()
     )
 
     # Load up the custom filters
     _environment.filters['autology_url'] = url_filter
+    _environment.filters['markdown'] = markdown_filter
 
     # Verify that the output directory exists before starting to write out the content
     _output_path = pathlib.Path(configuration_settings.publishing.output)
@@ -75,3 +82,8 @@ def url_filter(url):
     if config.publishing.url_root:
         return "{}/{}".format(get_configuration().publishing.url_root, url)
     return url
+
+
+def markdown_filter(content):
+    """Filter that will translate markdown content into HTML for display."""
+    return _markdown_conversion.reset().convert(content)
