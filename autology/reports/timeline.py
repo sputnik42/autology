@@ -1,18 +1,14 @@
 """
 Timeline report that will process all of the files into a timeline in order to be published to the log.
 """
-import datetime
-
 import frontmatter
 import pathlib
+from collections import namedtuple
 
 from autology.reports.models import Report
 from autology import topics
 from autology.publishing import publish
 from autology.utilities import log_file as log_file_utils
-
-# The current date that is being processed.
-_current_date = datetime.date.today()
 
 # The content that is stored for each individual day
 _day_content = []
@@ -21,8 +17,10 @@ _day_content = []
 _dates = []
 
 # Default template definitions
-TIMELINE_TEMPLATE_PATH = pathlib.Path('timeline', 'timeline_report.html')
+TIMELINE_TEMPLATE_PATH = pathlib.Path('timeline', 'index.html')
 DAY_TEMPLATE_PATH = pathlib.Path('timeline', 'day.html')
+
+DayReport = namedtuple('DayReport', 'date url')
 
 
 def register_plugin():
@@ -50,10 +48,8 @@ def _start_day_processing(date=None):
     :param date: the day that is being processed.
     :return:
     """
-    global _day_content, _current_date
+    global _day_content
     _day_content = []
-    _current_date = date
-    _dates.append(date)
 
 
 def _data_processor(file, date):
@@ -73,12 +69,12 @@ def _data_processor(file, date):
 
 def _end_day_processing(date=None):
     """Publish the content of the collated day together."""
-    publish(DAY_TEMPLATE_PATH, "{:04d}{:02d}{:02d}.html".format(_current_date.year, _current_date.month,
-                                                                _current_date.day),
-            entries=sorted(_day_content, key=lambda x: x[0]))
+    url = 'timeline/{:04d}{:02d}{:02d}.html'.format(date.year, date.month, date.day)
+    publish(DAY_TEMPLATE_PATH, url, entries=sorted(_day_content, key=lambda x: x[0]))
+    _dates.append(DayReport(date=date, url=url))
 
 
 def _end_processing():
-    publish(TIMELINE_TEMPLATE_PATH, 'timeline_report.html', dates=_dates)
+    publish(TIMELINE_TEMPLATE_PATH, 'timeline/index.html', dates=_dates)
     topics.Reporting.REGISTER_REPORT.publish(report=Report('Timeline', 'List of all report files',
-                                                           'timeline_report.html'))
+                                                           'timeline/index.html'))

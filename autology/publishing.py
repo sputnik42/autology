@@ -23,7 +23,7 @@ def register_plugin():
                               {
                                   'templates': 'templates',
                                   'output': 'output',
-                                  'url_root': ''
+                                  'url_root': '/'
                               })
 
 
@@ -69,7 +69,7 @@ def publish(template, output_file, context=None, **kwargs):
 
     root_template = _environment.get_template(str(template))
     output_content = root_template.render(context)
-    output_file = pathlib.Path(_output_path, output_file)
+    output_file = _output_path / output_file
 
     # Verify that the path is possible.
     output_file.parent.mkdir(exist_ok=True)
@@ -80,7 +80,7 @@ def url_filter(url):
     """Filter that will prepend the URL root for links in order to put the log in a directory on a webserver."""
     config = get_configuration()
     if config.publishing.url_root:
-        return "{}/{}".format(get_configuration().publishing.url_root, url)
+        return "{}{}".format(get_configuration().publishing.url_root, url)
     return url
 
 
