@@ -13,6 +13,10 @@ pip install git+https://github.com/MeerkatLabs/autology.git
 
 Please report all issues to [Bug tracker](https://github.com/MeerkatLabs/autology/issues)
 
+## Setup
+
+> TODO
+
 ## Configuration
 
 > TODO
