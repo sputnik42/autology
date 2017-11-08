@@ -38,7 +38,7 @@ def get_end_time(start_time, front_matter):
     :param front_matter:
     :return:
     """
-    if 'end_time' in front_matter:
+    if 'end_time' in front_matter and front_matter['end_time']:
         front_matter_value = front_matter['end_time']
         return _parse_time_value(start_time.date(), front_matter_value)
     else:
