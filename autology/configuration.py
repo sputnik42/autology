@@ -1,7 +1,6 @@
 """
 Module that loads the configuration details from a YAML file.
 """
-import pathlib
 from yaml import load
 try:
     from yaml import CLoader as Loader
@@ -9,6 +8,9 @@ except ImportError:
     from yaml import Loader
 from dict_recursive_update import recursive_update as _update
 import munch
+import pathlib
+
+_configuration_file_location = pathlib.Path('/')
 
 # This is the default settings object. It is in dictionary form, but will be accessed using object notation once the
 # configuration file has been loaded.
@@ -19,6 +21,11 @@ _settings = {
         'inputs': ['log'],
     }
 }
+
+
+def get_configuration_root():
+    """Provides the location of the configuration file's containing directory."""
+    return _configuration_file_location.parent
 
 
 def add_default_configuration(key, configuration):
@@ -36,7 +43,9 @@ def load_configuration_file(file_name):
     :param file_name: filename to open and load settings from
     :return: object containing settings.
     """
-    global _settings
+    global _settings, _configuration_file_location
+
+    _configuration_file_location = pathlib.Path(file_name).resolve()
 
     try:
         with open(file_name, 'r') as configuration_file:

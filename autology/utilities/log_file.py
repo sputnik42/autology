@@ -50,6 +50,8 @@ def _parse_time_value(date, time_value):
     if isinstance(time_value, int):
         # Convert it as a duration from midnight of the date.
         return datetime.datetime.combine(date, datetime.time.min) + datetime.timedelta(seconds=time_value)
+    elif isinstance(time_value, datetime.datetime):
+        return time_value
     else:
         splits = time_value.split(':')
         rv_hours = splits[0]

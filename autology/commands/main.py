@@ -3,6 +3,7 @@ import argparse
 from pkg_resources import iter_entry_points
 
 from autology.configuration import load_configuration_file as _load_configuration_file
+from autology import topics
 
 
 def _build_arguments():
@@ -34,11 +35,17 @@ def main():
     # Override the default values in configuration with the values from settings file.
     _load_configuration_file(args.config)
 
+    # Initialize all of the plugins in the architecture now that the settings have been loaded
+    topics.Application.INITIALIZE.publish()
+
     # Execute the sub-command requested. (as per the argparse documentation)
-    try:
-        args.func(args)
-    except AttributeError:
-        parser.print_help()
+    args.func(args)
+    # try:
+    #     args.func(args)
+    # except AttributeError:
+    #     parser.print_help()
+
+    topics.Application.FINALIZE.publish()
 
 
 if __name__ == '__main__':

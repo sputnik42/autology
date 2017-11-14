@@ -14,8 +14,6 @@ def register_command(subparser):
 
 def _main(args):
     configuration_settings = get_configuration()
-    # Initialize all of the plugins in the architecture now that the settings have been loaded
-    topics.Application.INITIALIZE.publish()
 
     sorted_files = {}
 
@@ -61,5 +59,3 @@ def _main(args):
     topics.Processing.END.publish()
 
     topics.Reporting.BUILD_MASTER.publish()
-
-    topics.Application.FINALIZE.publish()

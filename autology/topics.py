@@ -50,7 +50,8 @@ class Reporting(PubSubEnumMixin, enum.Enum):
     Topics related to notifying of new reports based on the processed data.
 
     REGISTER_REPORT -
-      parameters: report definition named tuple
+      parameters:
+        report - definition named tuple
     BUILD_MASTER -
       parameters: none
     """
@@ -70,3 +71,25 @@ class Application(PubSubEnumMixin, enum.Enum):
     """
     INITIALIZE = 'initialize'
     FINALIZE = 'finalize'
+
+
+@enum.unique
+class Storage(PubSubEnumMixin, enum.Enum):
+    """
+    Topics related to notifying the storage container about file system modifications.
+
+    FILE_ADDED - add a new file to the storage container
+      parameter:
+        file - relative path to the file that was created
+    FINISHED_MODIFICATIONS - all of the storage changes have been completed, and are ready to be pushed up
+      parameter:
+        message - text message describing the changes in case of logging
+    PUSH_CHANGES - push the changes to any remote storage capability
+      parameter: none
+    PULL_CHANGES - retrieve changes from the remote storage capability
+      parameter: none
+    """
+    FILE_ADDED = 'file_added'
+    FINISHED_MODIFICATIONS = 'finished_modifications'
+    PUSH_CHANGES = 'push_changes'
+    PULL_CHANGES = 'pull_changes'
