@@ -6,6 +6,7 @@ import markdown
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from autology import topics
 from autology.configuration import add_default_configuration, get_configuration
+from dict_recursive_update import recursive_update
 
 _environment = None
 _output_path = None
@@ -65,7 +66,12 @@ def publish(template, output_file, context=None, **kwargs):
     if not context:
         context = {}
 
-    context.update(kwargs)
+    recursive_update(context, kwargs)
+
+    # Insert all of the site details into the context as well
+    site_configuration = get_configuration().site.toDict()
+
+    recursive_update(context.setdefault('site', {}), site_configuration)
 
     root_template = _environment.get_template(str(template))
     output_content = root_template.render(context)

@@ -19,6 +19,9 @@ _configuration_file_location = pathlib.Path('/')
 _settings = {
     'processing': {
         'inputs': ['log'],
+    },
+    'site': {
+        'title': 'Development Log',
     }
 }
 
