@@ -23,13 +23,20 @@ def register_plugin():
 
 def _initialization():
     global _repo, _accessible
-    _repo = git.Repo(str(get_configuration_root()))
 
+    # If creating the git repository fails, then don't need to continue with this storage engine
+    try:
+        _repo = git.Repo(str(get_configuration_root()))
+    except git.InvalidGitRepositoryError:
+        return
+
+    # Try to fetch from the origin remote in order to determine if the remote repository is active
     try:
         _repo.remotes.origin.fetch()
         _accessible = True
-    except git.GitCommandError:
-        print('Marking remote repository as inaccessible')
+    except (git.GitCommandError, AttributeError):
+        # Command error is raised when the remote is not accessible and attribute error is raised when the remote is not
+        # defined.
         _accessible = False
 
     topics.Storage.FILE_ADDED.subscribe(_file_added)

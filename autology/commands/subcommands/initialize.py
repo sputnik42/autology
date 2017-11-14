@@ -59,7 +59,7 @@ def _main(args):
                 template_definition = yaml.load(_file_ptr)
 
                 print('Loaded template: {}'.format(template_definition['name']))
-                templates_path = template_definition_file.parent / template_definition['template_path']
+                templates_path = template_definition_file.parent
 
     # Now need to find the templates definition of that zip file and locate it in the file system so that it can be
     settings = get_configuration()
