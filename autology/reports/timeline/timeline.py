@@ -70,7 +70,7 @@ def _data_processor(file, date):
 def _end_day_processing(date=None):
     """Publish the content of the collated day together."""
     url = 'timeline/{:04d}{:02d}{:02d}.html'.format(date.year, date.month, date.day)
-    publish(DAY_TEMPLATE_PATH, url, entries=sorted(_day_content, key=lambda x: x[0]))
+    publish(DAY_TEMPLATE_PATH, url, entries=sorted(_day_content, key=lambda x: x[0]), date=date)
     _dates.append(DayReport(date=date, url=url))
 
 
