@@ -21,7 +21,7 @@ def register_command(subparser):
     add_default_configuration('make_note',
                               {
                                   'default_template': 'timeline_base',
-                                  'editor': 'gvim -f {file} +2',
+                                  'editor': 'xdg-open {file}',
                               })
 
 
