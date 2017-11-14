@@ -25,6 +25,7 @@ setup(
         'Pypubsub>=4.0.0,<5',
         'python-frontmatter>=0.4.2,<0.5',
         'PyYAML>=3.12,<4',
+        'requests>=2.18.4'
     ],
 
     extras_require={
@@ -37,8 +38,11 @@ setup(
         'autology_plugins': ['index_report=autology.reports.index:register_plugin',
                              'timeline_report=autology.reports.timeline:register_plugin',
                              'project_report=autology.reports.project:register_plugin',
-                             'publishing=autology.publishing:register_plugin', ],
+                             'publishing=autology.publishing:register_plugin',
+                             ],
         'autology_commands': ['generate=autology.commands.subcommands.generate:register_command',
-                              'serve=autology.commands.subcommands.serve:register_command', ]
+                              'serve=autology.commands.subcommands.serve:register_command',
+                              'init=autology.commands.subcommands.initialize:register_command',
+                              ]
     }
 )

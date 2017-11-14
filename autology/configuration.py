@@ -1,7 +1,7 @@
 """
 Module that loads the configuration details from a YAML file.
 """
-
+import pathlib
 from yaml import load
 try:
     from yaml import CLoader as Loader
@@ -40,7 +40,9 @@ def load_configuration_file(file_name):
 
     try:
         with open(file_name, 'r') as configuration_file:
-            _update(_settings, load(configuration_file, Loader=Loader))
+            _loaded_configuration = load(configuration_file, Loader=Loader)
+            if _loaded_configuration:
+                _update(_settings, _loaded_configuration)
     except FileNotFoundError:
         pass
 
