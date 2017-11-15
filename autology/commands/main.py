@@ -39,11 +39,10 @@ def main():
     topics.Application.INITIALIZE.publish()
 
     # Execute the sub-command requested. (as per the argparse documentation)
-    args.func(args)
-    # try:
-    #     args.func(args)
-    # except AttributeError:
-    #     parser.print_help()
+    if hasattr(args, 'func'):
+        args.func(args)
+    else:
+        parser.print_help()
 
     topics.Application.FINALIZE.publish()
 
