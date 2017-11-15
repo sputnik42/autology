@@ -101,7 +101,7 @@ def _process_markdown(file, date):
 
         log_date = log_file_utils.get_start_time(date, post.metadata, file)
 
-        project_log[log_date] = project_definition
+        project_log[log_date] = post
 
         # Calculate how long the event lasts
         time_on_project = project_definition.get('duration', datetime.timedelta())
