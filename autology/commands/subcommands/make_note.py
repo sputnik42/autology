@@ -35,7 +35,12 @@ def _main(args):
 
     for ep in iter_entry_points(group='autology_templates'):
         template_object = ep.load()()
-        loaded_templates[template_object.name] = template_object
+
+        if not isinstance(template_object, list):
+            template_object = [template_object]
+
+        for to in template_object:
+            loaded_templates[to.name] = to
 
     template_name = args.template if args.template is not None else get_configuration().make_note.default_template
 
