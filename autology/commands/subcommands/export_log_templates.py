@@ -1,4 +1,4 @@
-"""Sub-command that will create a new note file for the log."""
+"""Sub-command that will export all of the log generation templates to a directory."""
 import frontmatter
 from pkg_resources import iter_entry_points
 
