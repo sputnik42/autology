@@ -17,5 +17,11 @@ publishing:
   
   # URL prefix that will be used inside templates.  This is useful in case the output of the 
   # application is not located in the root of the webserver.
-  url_root: ''
+  url_root: '/'
 ```
+
+## Common Context Values
+
+All publishing contexts are provided details about the site object that is also defined in the `config.yaml` file.  It
+is provided under a site key in the context list.  This key is useful for providing site wide configuration values such 
+as CSS and Javascript definitions that should be included on each page that is rendered.
