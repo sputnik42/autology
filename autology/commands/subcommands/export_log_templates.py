@@ -15,11 +15,7 @@ def register_command(subparser):
 
 
 def _main(args):
-    """
-    Create a new note file in the correct location.
-    :param args:
-    :return:
-    """
+    """Dumps all of the templates to the output directory provided by args."""
     loaded_templates = {}
 
     for ep in iter_entry_points(group='autology_templates'):
