@@ -64,13 +64,15 @@ def _data_processor(file, date):
     entry = frontmatter.load(file)
     entry_date = log_file_utils.get_start_time(date, entry.metadata, file)
 
-    _day_content.append((entry_date, entry))
+    entry.metadata['time'] = entry_date
+
+    _day_content.append(entry)
 
 
 def _end_day_processing(date=None):
     """Publish the content of the collated day together."""
     url = 'timeline/{:04d}{:02d}{:02d}.html'.format(date.year, date.month, date.day)
-    publish(DAY_TEMPLATE_PATH, url, entries=sorted(_day_content, key=lambda x: x[0]), date=date)
+    publish(DAY_TEMPLATE_PATH, url, entries=sorted(_day_content, key=lambda x: x.metadata['time']), date=date)
     _dates.append(DayReport(date=date, url=url))
 
 

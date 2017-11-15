@@ -110,6 +110,11 @@ def _process_markdown(file, date):
         duration = log_end_date - log_date
         project_definition['duration'] = time_on_project + duration
 
+        # Set the date values in the post to be the python objects instead of just strings
+        post.metadata['time'] = log_date
+        post.metadata['end_time'] = log_end_date
+        post.metadata['duration'] = duration
+
 
 def _process_yaml(file=None, front_matter=None):
     """Process the documents in a yaml file and update data structures according to the data values."""
