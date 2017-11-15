@@ -46,6 +46,7 @@ setup(
                               'serve=autology.commands.subcommands.serve:register_command',
                               'init=autology.commands.subcommands.initialize:register_command',
                               'make_note=autology.commands.subcommands.make_note:register_command',
+                              'export_log_template=autology.commands.subcommands.export_log_templates:register_command',
                               ],
         'autology_templates': ['timeline_base=autology.reports.timeline.template:register_template',
                                'project_base=autology.reports.project.template:register_template',
