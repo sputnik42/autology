@@ -3,6 +3,7 @@ Timeline report that will process all of the files into a timeline in order to b
 """
 import frontmatter
 import pathlib
+from datetime import datetime, time
 from collections import namedtuple
 
 from autology.reports.models import Report
@@ -73,7 +74,7 @@ def _end_day_processing(date=None):
     """Publish the content of the collated day together."""
     url = 'timeline/{:04d}{:02d}{:02d}.html'.format(date.year, date.month, date.day)
     publish(DAY_TEMPLATE_PATH, url, entries=sorted(_day_content, key=lambda x: x.metadata['time']), date=date)
-    _dates.append(DayReport(date=date, url=url))
+    _dates.append(DayReport(date=datetime.combine(date=date, time=time.min), url=url))
 
 
 def _end_processing():
