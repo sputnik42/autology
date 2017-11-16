@@ -20,6 +20,9 @@ def _main(args):
     """Instantiate the server and start hosting files."""
     server_address = ('localhost', args.port)
     httpd = HTTPServer(server_address, _RequestHandler)
+
+    print('Now listening on http://localhost:{}/'.format(args.port))
+
     httpd.serve_forever()
 
 
@@ -29,8 +32,8 @@ class _RequestHandler(SimpleHTTPRequestHandler):
     def translate_path(self, path):
         """Code copied from parent class except the definition of the path variable."""
         # abandon query parameters
-        path = path.split('?',1)[0]
-        path = path.split('#',1)[0]
+        path = path.split('?', 1)[0]
+        path = path.split('#', 1)[0]
         # Don't forget explicit trailing slash when normalizing. Issue17324
         trailing_slash = path.rstrip().endswith('/')
         try:

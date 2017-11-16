@@ -114,13 +114,16 @@ def _copy_static_files():
     template_path = pathlib.Path(configuration.publishing.templates)
     output_path = pathlib.Path(configuration.publishing.output)
 
-    for glob_definition in _template_configuration.get('static_files', []):
-        for file in template_path.glob(glob_definition):
-            print('Copying static file: {}'.format(file))
+    static_files_list = _template_configuration.get('static_files', [])
 
-            # Make sure that the destination directory exists before copying the file into place
-            destination_parent = file.parent.relative_to(template_path)
-            destination = output_path / destination_parent
-            destination.mkdir(parents=True, exist_ok=True)
+    if static_files_list:
+        for glob_definition in static_files_list:
+            for file in template_path.glob(glob_definition):
+                print('Copying static file: {}'.format(file))
 
-            shutil.copy(str(file), str(destination))
+                # Make sure that the destination directory exists before copying the file into place
+                destination_parent = file.parent.relative_to(template_path)
+                destination = output_path / destination_parent
+                destination.mkdir(parents=True, exist_ok=True)
+
+                shutil.copy(str(file), str(destination))
