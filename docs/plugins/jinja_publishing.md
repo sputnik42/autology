@@ -1,6 +1,7 @@
 # Jinja2 Publishing Plugin
 
-The default publishing functionality is provided by Jinja2. 
+The default publishing functionality is provided by Jinja2.  For details on how to configure templates see [Template 
+Documentation](../templates/configuring.md).
 
 ## Configuration Details
 
