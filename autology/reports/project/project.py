@@ -51,6 +51,9 @@ def _build_report():
         # Also need to provide a URL value for the projects
         project['url'] = pathlib.Path('project', '{}.html'.format(project['id']))
 
+        # Sort the logs that are stored on the project
+        project['log'] = sorted(project.get('log', []), key=lambda x: x['time'])
+
         # Now generate a report for each of the projects.
         publish(PROJECT_TEMPLATE_PATH, project['url'], project=project)
 
@@ -97,17 +100,14 @@ def _process_markdown(file, date):
 
         # Then is clearly must be a string
         project_definition = _defined_projects.setdefault(post['mkl-project'], {'id': post['mkl-project']})
-        project_log = project_definition.setdefault('log', {})
-
-        log_date = log_file_utils.get_start_time(date, post.metadata, file)
-
-        project_log[log_date] = post
+        project_log = project_definition.setdefault('log', [])
+        project_log.append(post)
 
         # Calculate how long the event lasts
-        time_on_project = project_definition.get('duration', datetime.timedelta())
-
+        log_date = log_file_utils.get_start_time(date, post.metadata, file)
         log_end_date = log_file_utils.get_end_time(log_date, post.metadata)
         duration = log_end_date - log_date
+        time_on_project = project_definition.get('duration', datetime.timedelta())
         project_definition['duration'] = time_on_project + duration
 
         # Set the date values in the post to be the python objects instead of just strings

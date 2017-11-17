@@ -114,7 +114,7 @@ mkl-project:
   
   # List of all of the logs that are associated with working on the project.  The keys in this dictionary are a 
   # python datetime object, with the value being a frontmatter post object.
-  log: {}
+  log: []
   
   # NOTE:
   # The following fields are planned for future use, but not yet implemented or used by the report.  They are here

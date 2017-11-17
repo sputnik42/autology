@@ -39,7 +39,19 @@ Contains a list of all the dates that have logs associated with them.
      
   - `url`
   
-     > URL for the report containing the entries for that date.
+     > URL for the report containing the entries for that date
+     
+  - `num_entries`
+    
+     > Number of entries associated with that day's reports
+     
+  - `max_year` 
+  
+     > Highest year value for all of the logs recorded
+     
+  - `min_year`
+  
+     > Lowest year value for all of the logs recorded
 
 ### Daily Report 
 

@@ -51,7 +51,10 @@ def _main(args):
                 topics.Processing.DAY_START.publish(date=date_to_process)
 
                 for content_file in time_files:
-                    topics.Processing.PROCESS_FILE.publish(file=content_file, date=date_to_process)
+                    try:
+                        topics.Processing.PROCESS_FILE.publish(file=content_file, date=date_to_process)
+                    except:
+                        print('Exception raised while processing: {}'.format(content_file))
 
                 dates.append(date_to_process)
                 topics.Processing.DAY_END.publish(date=date_to_process)
