@@ -19,7 +19,7 @@ mkdir log; cd log
 python3 -m venv env
 source env/bin/activate
 
-pip install git+https://github.com/MeerkatLabs/autology.git
+pip install autology
 ```
 
 To create the log directory structure, execute:
