@@ -1,6 +1,6 @@
 """Template for the project log files."""
-from autology.reports.timeline.template import template_start as timeline_start, template_end as timeline_end
 from autology.reports.models import Template
+from autology.reports.timeline.template import template_start as timeline_start, template_end as timeline_end
 
 
 def register_template():

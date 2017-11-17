@@ -2,12 +2,12 @@
 import datetime
 import pathlib
 
-from autology.configuration import get_configuration
 from autology import topics
+from autology.configuration import get_configuration
 
 
 def register_command(subparser):
-    """Register the subcommand with any additional arguments."""
+    """Register the sub-command with any additional arguments."""
     generator_parser = subparser.add_parser('generate', help='Generate the static content')
     generator_parser.set_defaults(func=_main)
 

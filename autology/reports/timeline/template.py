@@ -1,6 +1,8 @@
 """Simple template definition for a log file that contains start time, end time, location, and empty content."""
 from datetime import datetime
+
 import frontmatter
+
 from autology.reports.models import Template
 
 
@@ -20,7 +22,7 @@ def template_start():
 
 def template_end(post):
     """
-    Finish the manipulation of the metadata in the frontmatter before saving the contents to the storage engine.
+    Finish the manipulation of the metadata in the front matter before saving the contents to the storage engine.
     :param post: the post file that will be modified.
     """
     if not post.metadata['end_time']:

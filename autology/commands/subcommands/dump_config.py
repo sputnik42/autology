@@ -7,7 +7,7 @@ from autology.configuration import get_configuration_root, get_configuration
 
 
 def register_command(subparser):
-    """Register the subcommand with any additional arguments."""
+    """Register the sub-command with any additional arguments."""
     parser = subparser.add_parser('dump_config', help='Create a new note object.')
     parser.set_defaults(func=_main)
 

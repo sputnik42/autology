@@ -1,15 +1,17 @@
 """Sub-command that will create a new note file for the log."""
-from autology.configuration import add_default_configuration, get_configuration, get_configuration_root
-from pkg_resources import iter_entry_points
-import frontmatter
 import datetime
 import pathlib
 import subprocess
+
+import frontmatter
+from pkg_resources import iter_entry_points
+
 from autology import topics
+from autology.configuration import add_default_configuration, get_configuration, get_configuration_root
 
 
 def register_command(subparser):
-    """Register the subcommand with any additional arguments."""
+    """Register the sub-command with any additional arguments."""
     parser = subparser.add_parser('make_note', help='Create a new note object.')
     parser.set_defaults(func=_main)
 

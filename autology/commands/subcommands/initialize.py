@@ -1,16 +1,18 @@
 """Sub-command that will initialize an autology area."""
 import pathlib
-from autology.configuration import get_configuration
-import yaml
-import io
 import zipfile
-import requests
 
-DEFAULT_TEMPLATES_URL = 'https://github.com/MeerkatLabs/autology_templates/archive/master.zip'
+import io
+import requests
+import yaml
+
+from autology.configuration import get_configuration
+
+DEFAULT_TEMPLATES_URL = 'https://github.com/MeerkatLabs/autology_templates/archive/v0.0.1.zip'
 
 
 def register_command(subparser):
-    """Register the subcommand with any additional arguments."""
+    """Register the sub-command with any additional arguments."""
     parser = subparser.add_parser('init', help='Initialize area for gathering content.')
     parser.set_defaults(func=_main)
 
@@ -33,7 +35,7 @@ def _main(args):
     except requests.exceptions.MissingSchema:
         template_file = templates
 
-    # template output directory is output/templates, so need to create that location before pulling out the tempaltes
+    # template output directory is output/templates, so need to create that location before pulling out the templates
     template_location = main_path / 'templates' / 'output'
     template_location.mkdir(parents=True, exist_ok=True)
     templates_path = None

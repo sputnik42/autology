@@ -1,11 +1,14 @@
 """Processes the front data in the markdown files to process project stat recordings."""
-import frontmatter
-from autology import topics
-from yaml import load_all
 import datetime
 import pathlib
-from autology.reports.models import Report
+
+import frontmatter
+from yaml import load_all
+
+from autology import topics
 from autology.publishing import publish
+from autology.reports.models import Report
+
 try:
     from yaml import CLoader as Loader
 except ImportError:

@@ -6,7 +6,7 @@ from autology.configuration import get_configuration_root
 
 
 def register_command(subparser):
-    """Register the subcommand with any additional arguments."""
+    """Register the sub-command with any additional arguments."""
     parser = subparser.add_parser('export_log_templates', help='Export the defined log templates to a directory')
     parser.set_defaults(func=_main)
 

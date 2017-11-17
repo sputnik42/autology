@@ -2,12 +2,12 @@ import argparse
 
 from pkg_resources import iter_entry_points
 
-from autology.configuration import load_configuration_file as _load_configuration_file
 from autology import topics
+from autology.configuration import load_configuration_file as _load_configuration_file
 
 
 def _build_arguments():
-    """Load subcommands defined in setup.py and allow them to build their arguments."""
+    """Load sub-commands defined in setup.py and allow them to build their arguments."""
     parser = argparse.ArgumentParser(description='Execute autology root command')
     parser.add_argument('--config', '-c', action='store', default='config.yaml',)
 

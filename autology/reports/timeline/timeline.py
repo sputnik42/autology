@@ -1,15 +1,15 @@
 """
 Timeline report that will process all of the files into a timeline in order to be published to the log.
 """
-from operator import attrgetter
-import frontmatter
 import pathlib
 from datetime import datetime, time
+
+import frontmatter
 from collections import namedtuple
 
-from autology.reports.models import Report
 from autology import topics
 from autology.publishing import publish
+from autology.reports.models import Report
 from autology.utilities import log_file as log_file_utils
 
 # The content that is stored for each individual day

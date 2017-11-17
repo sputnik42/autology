@@ -6,10 +6,10 @@ DEFAULT_EVENT_LENGTH = 60  # minutes
 
 def get_start_time(date, front_matter, file_path=None):
     """
-    Convert the details in frontmatter into a start time for the file.  If there isn't a value stored in the frontmatter
-    data values, then if defined the file_path will be used.
+    Convert the details in front matter into a start time for the file.  If there isn't a value stored in the front
+    matter data values, then if defined the file_path will be used.
 
-    Will search for start_time key in the frontmatter dictionary, if that value is a string, then it will be parsed as:
+    Will search for start_time key in the front matter dictionary, if that value is a string, then it will be parsed as:
     HH:MM.
     If it's an integer or a if it's a duration, then it will be parsed as [HH:]MM:SS duration value which is what YAML
     uses by default.  Please know that this is because of YAML parsing rules.

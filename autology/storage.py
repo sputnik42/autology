@@ -5,9 +5,9 @@ git is the storage module, but there is not a reason why another storage impleme
 Current implementation assumes that git is initialized in the project directory, and has a remote named origin.
 """
 import git
-from autology.configuration import get_configuration_root, add_default_configuration, get_configuration
-from autology import topics
 
+from autology import topics
+from autology.configuration import get_configuration_root, add_default_configuration, get_configuration
 
 # The current repository that all of the files will be stored/modified in.
 _repo = None
