@@ -1,9 +1,12 @@
 """Sub command that will generate the content of the static site."""
 import datetime
 import pathlib
+import mimetypes
+import tzlocal
 
 from autology import topics
 from autology.configuration import get_configuration
+from autology.utilities import log_file
 
 
 def register_command(subparser):
@@ -22,16 +25,18 @@ def _main(args):
     for input_path in configuration_settings.processing.inputs:
         search_path = pathlib.Path(input_path)
 
-        # Currently going to make the assumption that everyone is using the path naming convention that I'm dictating
-        # which is YYYY/MM/DD/file.ext
-        for file_component in search_path.glob('*/*/*/*'):
-            # Store all of the files into a dictionary containing the keys and a list of the files that are associated
-            # with that day
-            year, month, day = file_component.parent.relative_to(search_path).parts
+        for file_component in search_path.glob('**/*'):
 
-            storage = sorted_files.setdefault(int(year), {})
-            storage = storage.setdefault(int(month), {})
-            storage.setdefault(int(day), []).append(file_component)
+            if not file_component.is_dir():
+                file_processor = log_file.get_file_processor(file_component)
+
+                if file_processor:
+                    entry = file_processor.load(file_component)
+                    entry_time = file_processor.lookup_time(entry)
+
+                    storage = sorted_files.setdefault(entry_time.year, {})
+                    storage = storage.setdefault(entry_time.month, {})
+                    storage.setdefault(entry_time.day, []).append(file_component)
 
     dates = []
 
@@ -54,7 +59,9 @@ def _main(args):
                     try:
                         topics.Processing.PROCESS_FILE.publish(file=content_file, date=date_to_process)
                     except:
+                        import traceback
                         print('Exception raised while processing: {}'.format(content_file))
+                        traceback.print_exc()
 
                 dates.append(date_to_process)
                 topics.Processing.DAY_END.publish(date=date_to_process)

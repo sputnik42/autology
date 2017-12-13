@@ -15,6 +15,7 @@ except ImportError:
     from yaml import Loader
 from dict_recursive_update import recursive_update as _r_update
 from autology.utilities import log_file as log_file_utils
+from autology.reports.timeline import keys as fm_keys
 
 # Constants:
 
@@ -58,6 +59,8 @@ def _build_report():
         project['log'] = sorted(project.get('log', []), key=lambda x: x['time'])
 
         # Now generate a report for each of the projects.
+        print("Project: {}".format(project))
+
         publish(PROJECT_TEMPLATE_PATH, project['url'], project=project)
 
     main_context = {
@@ -84,20 +87,21 @@ def _process_file(file, date):
 
     It is not guaranteed that the files that are being processed will be processed in order.
     """
-    if file.suffix == '.md':
-        _process_markdown(file, date)
-    elif file.suffix == '.yaml':
-        _process_yaml(file=file)
+    file_processor = log_file_utils.get_file_processor(file)
+
+    if file_processor.mime_type == 'text/markdown':
+        _process_markdown(file_processor.load(file))
+    elif file_processor.mime_type == 'application/x-yaml':
+        _process_yaml(file_processor.load(file))
 
 
-def _process_markdown(file, date):
+def _process_markdown(post):
     """Process the front-matter contents, and store the markdown if necessary."""
-    post = frontmatter.load(file)
 
     if not post.keys():
         return
 
-    _process_yaml(front_matter=post.metadata)
+    _process_yaml([post.metadata])
 
     if 'mkl-project' in post.metadata and not isinstance(post['mkl-project'], dict):
 
@@ -107,28 +111,19 @@ def _process_markdown(file, date):
         project_log.append(post)
 
         # Calculate how long the event lasts
-        log_date = log_file_utils.get_start_time(date, post.metadata, file)
-        log_end_date = log_file_utils.get_end_time(log_date, post.metadata)
+        log_date = post[fm_keys.TIME]
+        log_end_date = post[fm_keys.END_TIME]
         duration = log_end_date - log_date
         time_on_project = project_definition.get('duration', datetime.timedelta())
         project_definition['duration'] = time_on_project + duration
 
         # Set the date values in the post to be the python objects instead of just strings
-        post.metadata['time'] = log_date
-        post.metadata['end_time'] = log_end_date
         post.metadata['duration'] = duration
 
 
-def _process_yaml(file=None, front_matter=None):
-    """Process the documents in a yaml file and update data structures according to the data values."""
-
-    # Create a valid documents variable based on the parameters that are provided.
-    if file:
-        with open(file) as yaml_file:
-            documents = [d for d in load_all(yaml_file, Loader=Loader)]
-    elif front_matter:
-        documents = [front_matter]
-    else:
+def _process_yaml(documents):
+    """Process the documents update data structures according to the data values."""
+    if documents is None:
         documents = []
 
     for document in documents:

@@ -8,6 +8,7 @@ from pkg_resources import iter_entry_points
 
 from autology import topics
 from autology.configuration import add_default_configuration, get_configuration, get_configuration_root
+from autology.reports.timeline.processors import markdown as md_loader
 
 
 def register_command(subparser):
@@ -78,9 +79,8 @@ def _create_note(template):
     commands = [a.format(file=file_name) for a in get_configuration().make_note.editor.split()]
     subprocess.run(commands)
 
-    # Now need to reload the contents of the file
-    with file_name.open() as post_file:
-        post = frontmatter.load(post_file)
+    # Now need to reload the contents of the file, and convert all of the time values
+    post = md_loader.load_file(file_name)
 
     template.end(post)
 

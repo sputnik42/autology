@@ -84,17 +84,17 @@ def publish(template, output_file, context=None, **kwargs):
     site_configuration = get_configuration().site.toDict()
     recursive_update(context.setdefault('site', {}), site_configuration)
 
-    try:
-        root_template = _environment.get_template(str(template))
-        output_content = root_template.render(context)
-        output_file = _output_path / output_file
+    # try:
+    root_template = _environment.get_template(str(template))
+    output_content = root_template.render(context)
+    output_file = _output_path / output_file
 
-        # Verify that the path is possible.
-        output_file.parent.mkdir(exist_ok=True)
-        output_file.write_text(output_content)
-    except Exception as e:
-        print('Error rendering template: {}'.format(template))
-        print('e: {}'.format(e))
+    # Verify that the path is possible.
+    output_file.parent.mkdir(exist_ok=True)
+    output_file.write_text(output_content)
+    # except Exception as e:
+    #     print('Error rendering template: {}'.format(template))
+    #     print('e: {}'.format(e))
 
 
 def url_filter(url):

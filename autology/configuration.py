@@ -18,10 +18,15 @@ _configuration_file_location = pathlib.Path('/')
 # i.e. processing['output'] will be processing.output instead.
 _settings = {
     'processing': {
+        # List of log directories that should be processed in order to find content
         'inputs': ['log'],
     },
     'site': {
+        # This is the default title of the site
         'title': 'Development Log',
+
+        # This is the timezone that the site will be generated using
+        'timezone': 'UTC',
     }
 }
 

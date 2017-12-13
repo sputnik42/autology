@@ -27,6 +27,9 @@ setup(
         'PyYAML>=3.12,<4',
         'requests>=2.18.4',
         'GitPython>=2.1.7<3',
+        'pytz>=2017.3<2018',
+        'tzlocal>=1.5.1<2',
+        'semantic-version>=2.6.0',
     ],
 
     extras_require={
@@ -48,6 +51,7 @@ setup(
                               'make_note=autology.commands.subcommands.make_note:register_command',
                               'export_log_template=autology.commands.subcommands.export_log_templates:register_command',
                               'dump_config=autology.commands.subcommands.dump_config:register_command',
+                              'update=autology.commands.subcommands.update:register_command',
                               ],
         'autology_templates': ['timeline_base=autology.reports.timeline.template:register_template',
                                'project_base=autology.reports.project.template:register_template',

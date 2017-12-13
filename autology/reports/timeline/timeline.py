@@ -4,13 +4,15 @@ Timeline report that will process all of the files into a timeline in order to b
 import pathlib
 from datetime import datetime, time
 
-import frontmatter
 from collections import namedtuple
 
 from autology import topics
 from autology.publishing import publish
 from autology.reports.models import Report
-from autology.utilities import log_file as log_file_utils
+from autology.reports.timeline import keys as fm_keys
+from autology.reports.timeline.processors import markdown as md_loader, yaml_processor as yaml_loader
+
+from autology.utilities import log_file
 
 # The content that is stored for each individual day
 _day_content = []
@@ -31,6 +33,8 @@ def register_plugin():
     :return:
     """
     topics.Application.INITIALIZE.subscribe(_initialize)
+    md_loader.register()
+    yaml_loader.register()
 
 
 def _initialize():
@@ -60,13 +64,12 @@ def _data_processor(file, date):
     :param file:
     :return:
     """
-    if file.suffix != '.md':
+    file_loader = log_file.get_file_processor(file)
+
+    if file_loader.mime_type is not md_loader.MIME_TYPE:
         return
 
-    entry = frontmatter.load(file)
-    entry_date = log_file_utils.get_start_time(date, entry.metadata, file)
-
-    entry.metadata['time'] = entry_date
+    entry = file_loader.load(file)
 
     _day_content.append(entry)
 
@@ -74,7 +77,7 @@ def _data_processor(file, date):
 def _end_day_processing(date=None):
     """Publish the content of the collated day together."""
     url = 'timeline/{:04d}{:02d}{:02d}.html'.format(date.year, date.month, date.day)
-    publish(DAY_TEMPLATE_PATH, url, entries=sorted(_day_content, key=lambda x: x.metadata['time']), date=date)
+    publish(DAY_TEMPLATE_PATH, url, entries=sorted(_day_content, key=lambda x: x.metadata[fm_keys.TIME]), date=date)
     _dates.append(DayReport(date=datetime.combine(date=date, time=time.min), url=url, num_entries=len(_day_content)))
 
 

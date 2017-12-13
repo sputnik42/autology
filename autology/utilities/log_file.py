@@ -1,63 +1,40 @@
-"""Utilities for helping with the markdown log files stored."""
+"""Utilities for processing log files."""
+import mimetypes
 import datetime
+import tzlocal
 
-DEFAULT_EVENT_LENGTH = 60  # minutes
+from collections import namedtuple
 
-
-def get_start_time(date, front_matter, file_path=None):
-    """
-    Convert the details in front matter into a start time for the file.  If there isn't a value stored in the front
-    matter data values, then if defined the file_path will be used.
-
-    Will search for start_time key in the front matter dictionary, if that value is a string, then it will be parsed as:
-    HH:MM.
-    If it's an integer or a if it's a duration, then it will be parsed as [HH:]MM:SS duration value which is what YAML
-    uses by default.  Please know that this is because of YAML parsing rules.
-
-    if the front_matter doesn't contain a start_time and file_path is None, then the start_time will be returned as
-    midnight.
-
-    :param date: date to be used for the time.
-    :param front_matter: the front matter dictionary associated with the file
-    :param file_path: the file path of the log file.
-    :return datetime object containing the date time start of the file.
-    """
-    if 'time' in front_matter:
-        front_matter_value = front_matter['time']
-        return _parse_time_value(date, front_matter_value)
-    else:
-        print('File: {} doesn\'t have a time value: '.format(file_path))
-        return datetime.datetime.combine(date, datetime.time.min)
+_file_processors = {}
 
 
-def get_end_time(start_time, front_matter):
-    """
-    Parse the end time value out of front matter.  Cannot use a file to determine this value, but the rest of the
-    documentation in get_start_time is relevant to this method.
-    :param start_time:
-    :param front_matter:
-    :return:
-    """
-    if 'end_time' in front_matter and front_matter['end_time']:
-        front_matter_value = front_matter['end_time']
-        return _parse_time_value(start_time.date(), front_matter_value)
-    else:
-        return start_time + datetime.timedelta(minutes=DEFAULT_EVENT_LENGTH)
+_FileProcessor = namedtuple('FileProcessor', 'mime_type load lookup_time')
+DEFAULT_FILE_PROCESSOR = _FileProcessor('undefined', lambda x: None, lambda x: default_time_getter(x))
 
 
-def _parse_time_value(date, time_value):
+def register_mime_type(file_extension, mime_type):
+    """Register the mime types in the system library. """
+    mimetypes.add_type(mime_type, file_extension)
 
-    if isinstance(time_value, int):
-        # Convert it as a duration from midnight of the date.
-        return datetime.datetime.combine(date, datetime.time.min) + datetime.timedelta(seconds=time_value)
-    elif isinstance(time_value, datetime.datetime):
-        return time_value
-    else:
-        splits = time_value.split(':')
-        rv_hours = splits[0]
-        rv_minutes = splits[1]
-        rv_seconds = 0
-        if len(splits) == 3:
-            rv_seconds = splits[2]
 
-        return datetime.datetime.combine(date, datetime.time(int(rv_hours), int(rv_minutes), int(rv_seconds)))
+def lookup_mime_type(file_component):
+    """Lookup the mime type based on the pathlib path provided."""
+    file_component = file_component.resolve()
+    file_type, encoding = mimetypes.guess_type(file_component.as_uri())
+    return file_type
+
+
+def default_time_getter(file):
+    """Return localized now when time getter not defined."""
+    return tzlocal.get_localzone().localize(datetime.datetime.now())
+
+
+def register_file_processor(mime_type, file_loader, time_getter=default_time_getter):
+    """Register file processor for specified mime_type."""
+    _file_processors[mime_type] = _FileProcessor(mime_type, file_loader, time_getter)
+
+
+def get_file_processor(file):
+    """Retrieve the file processor for the provided file."""
+    mime_type = lookup_mime_type(file)
+    return _file_processors.get(mime_type, DEFAULT_FILE_PROCESSOR)
