@@ -18,6 +18,11 @@ This plugin only receives inputs from the `REGISTER_REPORT` topic.
 
 Contains all reports that were reported during execution.  
 
+#### Template Path Definition
+
+- index
+    - index
+
 #### Publishing Context Values
 
 The following values will be used when creating the index report.

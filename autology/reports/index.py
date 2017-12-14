@@ -36,7 +36,7 @@ def _new_report_handler(report=None):
 def _finish_processing():
     _index_stats['generated_date'] = datetime.datetime.now()
     _index_stats['execution_time'] = (_index_stats['end_time'] - _index_stats['start_time']).total_seconds()
-    publish(INDEX_TEMPLATE_PATH, 'index.html', reports=_reports, stats=_index_stats)
+    url = publish('index', 'index', reports=_reports, stats=_index_stats)
 
 
 def _record_start_time():

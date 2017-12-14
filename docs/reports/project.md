@@ -162,6 +162,11 @@ mkl-customer:
 
 Lists all of the organizations and the associated projects.
 
+#### Template Path Definition
+
+- project
+    - index
+
 #### Publishing Context Objects
 
 - `projects` 
@@ -186,6 +191,11 @@ Lists all of the organizations and the associated projects.
 Lists all of the logs associated with the report as well as the current state of the project. This
 is done by collecting all of the values stored in the front matter.  It can also list the customers
 of each project and the POC information.
+
+#### Template Path Definition
+
+- project
+    - project
 
 #### Publishing Context Objects
 

@@ -1,9 +1,6 @@
 """Sub-command that will dump the current configuration, to include all of the default values."""
 import pathlib
-
-import yaml
-
-from autology.configuration import get_configuration_root, get_configuration
+from autology.configuration import get_configuration_root, dump_configuration
 
 
 def register_command(subparser):
@@ -26,7 +23,4 @@ def _main(args):
         output_path = get_configuration_root() / output_path
 
     # Now need to find the templates definition of that zip file and locate it in the file system so that it can be
-    settings = get_configuration()
-
-    with open(output_path, 'w') as configuration_file:
-        yaml.safe_dump(settings.toDict(), configuration_file, default_flow_style=False)
+    dump_configuration(output_path)

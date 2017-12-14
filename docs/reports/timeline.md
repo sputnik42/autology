@@ -27,6 +27,11 @@ The timeline plugin only looks at one value stored in the front matter.
 
 Contains a list of all the dates that have logs associated with them.
 
+#### Template Path Definition
+
+- timeline
+    - index
+
 #### Publishing Context
 
 - `dates` 
@@ -57,8 +62,13 @@ Contains a list of all the dates that have logs associated with them.
 
 Contains the contents of the logs concatenated together into a large HTML file.
 
+#### Template Path Definition
+
+- timeline
+    - day
+
 #### Publishing Context
 
 - `entries`
 
-  > List of lists containing the date and the frontmatter post. 
+  > List of lists containing the date and the front matter post. 

@@ -76,8 +76,7 @@ def _data_processor(file, date):
 
 def _end_day_processing(date=None):
     """Publish the content of the collated day together."""
-    url = 'timeline/{:04d}{:02d}{:02d}.html'.format(date.year, date.month, date.day)
-    publish(DAY_TEMPLATE_PATH, url, entries=sorted(_day_content, key=lambda x: x.metadata[fm_keys.TIME]), date=date)
+    url = publish('timeline', 'day', entries=sorted(_day_content, key=lambda x: x.metadata[fm_keys.TIME]), date=date)
     _dates.append(DayReport(date=datetime.combine(date=date, time=time.min), url=url, num_entries=len(_day_content)))
 
 
@@ -88,7 +87,5 @@ def _end_processing():
     max_year = max(_dates, key=lambda x: x.date, default=datetime.now()).date.year
     min_year = min(_dates, key=lambda x: x.date, default=datetime.now()).date.year
 
-    publish(TIMELINE_TEMPLATE_PATH, 'timeline/index.html', dates=_dates, max_entries=max_entries,
-            max_year=max_year, min_year=min_year)
-    topics.Reporting.REGISTER_REPORT.publish(report=Report('Timeline', 'List of all report files',
-                                                           'timeline/index.html'))
+    url = publish('timeline', 'index', dates=_dates, max_entries=max_entries, max_year=max_year, min_year=min_year)
+    topics.Reporting.REGISTER_REPORT.publish(report=Report('Timeline', 'List of all report files', url))

@@ -66,35 +66,44 @@ def _initialize():
     _output_path.mkdir(exist_ok=True)
 
 
-def publish(template, output_file, context=None, **kwargs):
+def publish(*args, context=None, **kwargs):
     """
     Notify jinja to publish the template to the output_file location with all of the context provided.
-    :param template:
-    :param output_file:
+    :param args: the arguments that will be used to find the template in the template configuration
     :param context:
     :param kwargs:
     :return:
     """
+    # Build up the context argument, special kwarg context will be used to provide a starting dictionary
     if not context:
         context = {}
-
     recursive_update(context, kwargs)
 
     # Insert all of the site details into the context as well
     site_configuration = get_configuration().site.toDict()
     recursive_update(context.setdefault('site', {}), site_configuration)
 
-    # try:
-    root_template = _environment.get_template(str(template))
+    # Find the template definition object
+    template_definition = _template_configuration.get('templates', {})
+    for template_path in args:
+        try:
+            template_definition = template_definition[template_path]
+        except KeyError:
+            print('Cannot find template definition: {} '
+                  'in template definitions: {}'.format(args, _template_configuration.get('templates', {})))
+            raise
+
+    # Load the template and render to the destination file defined in the template_definition
+    root_template = _environment.get_template(str(template_definition['template']))
+    output_file = template_definition['destination'].format(**context)
     output_content = root_template.render(context)
     output_file = _output_path / output_file
 
-    # Verify that the path is possible.
+    # Verify that the path is possible and write out the file
     output_file.parent.mkdir(exist_ok=True)
     output_file.write_text(output_content)
-    # except Exception as e:
-    #     print('Error rendering template: {}'.format(template))
-    #     print('e: {}'.format(e))
+
+    return output_file.relative_to(_output_path)
 
 
 def url_filter(url):

@@ -1,7 +1,7 @@
 """
 Module that loads the configuration details from a YAML file.
 """
-from yaml import load
+from yaml import load, safe_dump
 try:
     from yaml import CLoader as Loader
 except ImportError:
@@ -69,3 +69,17 @@ def load_configuration_file(file_name):
 def get_configuration():
     """Returns objects with unmodified settings."""
     return munch.Munch.fromDict(_settings)
+
+
+def dump_configuration(configuration_file, configuration=None):
+    """
+    Dump the configuration object to the provided file.
+    :param configuration_file:
+    :param configuration: overridden configuration file to save off.
+    :return:
+    """
+    if configuration is None:
+        configuration = get_configuration()
+
+    with open(configuration_file, 'w') as configuration_file:
+        safe_dump(configuration.toDict(), configuration_file, default_flow_style=False)

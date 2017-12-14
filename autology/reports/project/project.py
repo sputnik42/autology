@@ -61,7 +61,8 @@ def _build_report():
         # Now generate a report for each of the projects.
         print("Project: {}".format(project))
 
-        publish(PROJECT_TEMPLATE_PATH, project['url'], project=project)
+        url = publish('project', 'project', project=project)
+        project['url'] = url
 
     main_context = {
         'projects': _defined_projects.values(),
@@ -72,9 +73,8 @@ def _build_report():
     if orphaned_projects:
         main_context['orphaned_projects'] = orphaned_projects
 
-    publish(MAIN_TEMPLATE_PATH, 'project/index.html', **main_context)
-    topics.Reporting.REGISTER_REPORT.publish(report=Report('Project', 'List of all project files',
-                                                           'project/index.html'))
+    url = publish('project', 'index', **main_context)
+    topics.Reporting.REGISTER_REPORT.publish(report=Report('Project', 'List of all project files', url))
 
 
 def _process_file(file, date):
