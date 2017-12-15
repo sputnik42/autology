@@ -18,9 +18,13 @@ The timeline plugin only looks at one value stored in the front matter.
   > The time value for when the post should be listed in the log definition.  This value can be provided in the 
   > following formats.
   >
-  > HH:MM:SS
-  > YYY-mm-dd HH:MM:SS.mmmmm
+  > - 2001-12-15T02:59:43.1Z  
+  > - 2001-12-14t21:59:43.10-05:00  
+  > - 2001-12-14 21:59:43.10 -5
+  > 
+  > These formats are defined in [YAML Specification](http://www.yaml.org/spec/1.2/spec.html#id2761292)
 
+    
 ## Generated Reports
 
 ### Main Report
