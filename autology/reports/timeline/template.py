@@ -12,7 +12,9 @@ PACKAGE_NAME = 'autology'
 
 
 def register_template():
-    return Template('timeline_base', template_start, template_end)
+    description = "This template provides the base for all templates.  It contains all required fields."
+
+    return Template('timeline_base', template_start, template_end, description)
 
 
 def template_start(start_time=None, end_time=None, **kwargs):

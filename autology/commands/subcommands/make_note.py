@@ -64,7 +64,7 @@ def _main(args):
     if args.template_list:
         print('Available templates:')
         for key in loaded_templates.keys():
-            print('  {}'.format(key))
+            print('  {} - {}'.format(key, loaded_templates[key].description))
     else:
         start_date = args.start_date
         end_date = args.end_date

@@ -6,4 +6,4 @@ from collections import namedtuple
 Report = namedtuple('Report', 'name description url')
 
 # Template definition used to register the input template files for the logs.
-Template = namedtuple('Template', 'name start end')
+Template = namedtuple('Template', 'name start end description')
