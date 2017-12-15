@@ -15,12 +15,15 @@ def register_template():
     return Template('timeline_base', template_start, template_end)
 
 
-def template_start():
+def template_start(start_time=None, end_time=None, **kwargs):
     """ Start a new file template based on the content of the template definition. """
 
+    if start_time is None:
+        start_time = tzlocal.get_localzone().localize(datetime.now())
+
     _post = frontmatter.Post('', **{
-        fm_keys.TIME: tzlocal.get_localzone().localize(datetime.now()),
-        fm_keys.END_TIME: None,
+        fm_keys.TIME: start_time,
+        fm_keys.END_TIME: end_time,
         fm_keys.LOCATION: 'home',
         fm_keys.AGENT_DEFINITION: {
             fm_keys.AGENT_NAME: PACKAGE_NAME,
@@ -31,13 +34,16 @@ def template_start():
     return _post
 
 
-def template_end(post):
+def template_end(post, **kwargs):
     """
     Finish the manipulation of the metadata in the front matter before saving the contents to the storage engine.
     :param post: the post file that will be modified.
     """
     if not post.metadata[fm_keys.END_TIME]:
         post.metadata[fm_keys.END_TIME] = tzlocal.get_localzone().localize(datetime.now())
+    else:
+        # Need to set the timezone value for the post to be the current time zone.
+        post.metadata[fm_keys.END_TIME] = post.metadata[fm_keys.END_TIME].astimezone(tzlocal.get_localzone())
 
     # Time value is currently stored in a different timezone, so make sure that it's set to the local timezone value
     # just as the end time is

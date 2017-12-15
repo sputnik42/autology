@@ -2,6 +2,7 @@
 import datetime
 import pathlib
 import subprocess
+import tzlocal
 
 import frontmatter
 from pkg_resources import iter_entry_points
@@ -9,6 +10,9 @@ from pkg_resources import iter_entry_points
 from autology import topics
 from autology.configuration import add_default_configuration, get_configuration, get_configuration_root
 from autology.reports.timeline.processors import markdown as md_loader
+
+
+DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 
 def register_command(subparser):
@@ -19,6 +23,14 @@ def register_command(subparser):
     parser.add_argument('--template-list', '-T', help='List all of the templates that are available',
                         action='store_true')
     parser.add_argument('--template', '-t', help='Specify the template file that will be used',
+                        default=None)
+    parser.add_argument('--start-date', '-d',
+                        help='Specify the start time for the note that will be added.  Format is '
+                             + DATE_FORMAT.replace('%', '%%'),
+                        default=None)
+    parser.add_argument('--end-date', '-D',
+                        help='Specify the end time for the note that will be added.  Format is '
+                             + DATE_FORMAT.replace('%', '%%'),
                         default=None)
 
     add_default_configuration('make_note',
@@ -54,12 +66,22 @@ def _main(args):
         for key in loaded_templates.keys():
             print('  {}'.format(key))
     else:
-        _create_note(template)
+        start_date = args.start_date
+        end_date = args.end_date
+
+        if start_date:
+            start_date = tzlocal.get_localzone().localize(datetime.datetime.strptime(start_date, DATE_FORMAT))
+        else:
+            start_date = tzlocal.get_localzone().localize(datetime.datetime.now())
+
+        if end_date:
+            end_date = tzlocal.get_localzone().localize(datetime.datetime.strptime(end_date, DATE_FORMAT))
+
+        _create_note(template, start_date, end_date)
 
 
-def _create_note(template):
-    now = datetime.datetime.now()
-    post = template.start()
+def _create_note(template, start_time, end_time):
+    post = template.start(start_time=start_time, end_time=end_time)
 
     directory_structure = pathlib.Path(get_configuration().processing.inputs[0])
 
@@ -67,11 +89,12 @@ def _create_note(template):
     if not directory_structure.is_absolute():
         directory_structure = get_configuration_root() / directory_structure
 
-    directory_structure = directory_structure / now.strftime('%Y') / now.strftime('%m') / now.strftime('%d')
+    directory_structure /= pathlib.Path(start_time.strftime('%Y')) / start_time.strftime('%m')
+    directory_structure /= pathlib.Path(start_time.strftime('%d'))
 
     directory_structure.mkdir(parents=True, exist_ok=True)
 
-    file_name = directory_structure / now.strftime('%H%M%S.md')
+    file_name = directory_structure / start_time.strftime('%H%M%S.md')
 
     # Write out the file to the file_name
     file_name.write_text(frontmatter.dumps(post))

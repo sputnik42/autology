@@ -36,6 +36,22 @@ This command is configured using command line arguments.
 
   > List all of the templates that are available to be used to generate a new log file.  Specifying this argument will
   > cause the command to exit after the list has been printed out.
+  
+- `-d` or `--start-date`
+
+  > Specify the time that the note will be logged for.  This populates the `time` metadata value in the front-matter. 
+  > The format of the string must be in `'%Y-%m-%d %H:%M:%S'` format.  Note you will need to put this parameter in 
+  > quotes because the value takes a space.  See 
+  > [Pythons Strftime](https://docs.python.org/3/library/time.html#time.strftime) documentation for details on this
+  > format.
+  
+- `-D` or `--end-date`
+
+  > Specify the end time that the note will be logged for.  This populates the `end_time` metadata value in the 
+  > front-matter. The format of the string must be in `'%Y-%m-%d %H:%M:%S'` format.  Note you will need to put this 
+  > parameter in quotes because the value takes a space.  See 
+  > [Pythons Strftime](https://docs.python.org/3/library/time.html#time.strftime) documentation for details on this
+  > format.
 
 ## Example Execution
 

@@ -7,14 +7,14 @@ def register_template():
     return Template('project_base', template_start, template_end)
 
 
-def template_start():
-    post = timeline_start()
+def template_start(**kwargs):
+    post = timeline_start(**kwargs)
     post.metadata['mkl-project'] = None
 
     return post
 
 
-def template_end(post):
-    post = timeline_end(post)
+def template_end(post, **kwargs):
+    post = timeline_end(post, **kwargs)
 
     return post
