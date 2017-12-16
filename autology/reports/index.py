@@ -8,7 +8,10 @@ from autology.publishing import publish
 _reports = []
 
 INDEX_TEMPLATE_PATH = pathlib.Path('index', 'index.html')
-_index_stats = {}
+_index_stats = {
+    'processed_files': 0,
+    'num_days': 0,
+}
 
 
 def register_plugin():

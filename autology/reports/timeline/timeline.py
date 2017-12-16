@@ -83,9 +83,13 @@ def _end_day_processing(date=None):
 def _end_processing():
     """All of the input files have been processed, so now need to build the master input value."""
     # Iterate through all of the values and count entries per day so can determine a decent legend value
-    max_entries = max(_dates, key=lambda x: x.num_entries, default=40).num_entries
-    max_year = max(_dates, key=lambda x: x.date, default=datetime.now()).date.year
-    min_year = min(_dates, key=lambda x: x.date, default=datetime.now()).date.year
+    if _dates:
+        max_entries = max(_dates, key=lambda x: x.num_entries).num_entries
+        max_year = max(_dates, key=lambda x: x.date).date.year
+        min_year = min(_dates, key=lambda x: x.date).date.year
+    else:
+        max_entries = 0
+        max_year = min_year = datetime.now().year
 
     url = publish('timeline', 'index', dates=_dates, max_entries=max_entries, max_year=max_year, min_year=min_year)
     topics.Reporting.REGISTER_REPORT.publish(report=Report('Timeline', 'List of all report files', url))
