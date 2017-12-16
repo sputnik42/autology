@@ -2,6 +2,7 @@
 import mimetypes
 import datetime
 import tzlocal
+import pathlib
 
 from collections import namedtuple
 
@@ -38,3 +39,55 @@ def get_file_processor(file):
     """Retrieve the file processor for the provided file."""
     mime_type = lookup_mime_type(file)
     return _file_processors.get(mime_type, DEFAULT_FILE_PROCESSOR)
+
+
+def walk_log_files(directories):
+    """Generator that will walk through all of the log files and yield each file in datetime order."""
+    sorted_files = {}
+
+    # Need to find all of the files that are stored in the input_files directories in order to start building the
+    # reports that will be used to generate the static log files.
+    for input_path in directories:
+        search_path = pathlib.Path(input_path)
+
+        for file_component in search_path.glob('**/*'):
+
+            if not file_component.is_dir():
+                file_processor = get_file_processor(file_component)
+
+                if file_processor:
+                    entry = file_processor.load(file_component)
+                    entry_time = file_processor.lookup_time(entry)
+                    try:
+                        storage = sorted_files.setdefault(entry_time.year, {})
+                        storage = storage.setdefault(entry_time.month, {})
+                        storage.setdefault(entry_time.day, []).append(file_component)
+                    except:
+                        pass
+
+    dates = []
+
+    # Now need to process each of the files in order, and build up a master static page for the content.
+    for year in sorted(sorted_files.keys()):
+        month_files = sorted_files[year]
+
+        for month in sorted(month_files.keys()):
+            day_files = month_files[month]
+
+            for day in sorted(day_files.keys()):
+                time_files = day_files[day]
+
+                date_to_process = datetime.date(year, month, day)
+                # topics.Processing.DAY_START.publish(date=date_to_process)
+
+                for content_file in time_files:
+                    try:
+                        yield date_to_process, content_file
+                        # topics.Processing.PROCESS_FILE.publish(file=content_file, date=date_to_process)
+                    except:
+                        import traceback
+                        print('Exception raised while processing: {}'.format(content_file))
+                        traceback.print_exc()
+
+                dates.append(date_to_process)
+                # topics.Processing.DAY_END.publish(date=date_to_process)

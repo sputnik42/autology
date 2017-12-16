@@ -37,7 +37,7 @@ def register_plugin():
 
 def _initialize():
     """ Register for all of the required events that will be fired off by the main loop """
-    topics.Processing.PROCESS_FILE.subscribe(_process_file)
+    topics.Processing.PROCESS_FILE.subscribe(process_file)
     topics.Processing.END.subscribe(_build_report)
 
 
@@ -77,7 +77,7 @@ def _build_report():
     topics.Reporting.REGISTER_REPORT.publish(report=Report('Project', 'List of all project files', url))
 
 
-def _process_file(file, date):
+def process_file(file, date):
     """
     Process the file.
 
@@ -89,10 +89,16 @@ def _process_file(file, date):
     """
     file_processor = log_file_utils.get_file_processor(file)
 
-    if file_processor.mime_type == 'text/markdown':
-        _process_markdown(file_processor.load(file))
-    elif file_processor.mime_type == 'application/x-yaml':
-        _process_yaml(file_processor.load(file))
+    try:
+        if file_processor.mime_type == 'text/markdown':
+            _process_markdown(file_processor.load(file))
+        elif file_processor.mime_type == 'application/x-yaml':
+            _process_yaml(file_processor.load(file))
+    except:
+        print('Error processing file: {}'.format(file))
+        import traceback
+        traceback.print_exc()
+        raise
 
 
 def _process_markdown(post):
@@ -103,7 +109,7 @@ def _process_markdown(post):
 
     _process_yaml([post.metadata])
 
-    if 'mkl-project' in post.metadata and not isinstance(post['mkl-project'], dict):
+    if 'mkl-project' in post.metadata and post.metadata['mkl-project'] and not isinstance(post['mkl-project'], dict):
 
         # Then is clearly must be a string
         project_definition = _defined_projects.setdefault(post['mkl-project'], {'id': post['mkl-project']})
@@ -165,3 +171,7 @@ def _process_yaml(documents):
         # working on the project before the definition yaml file was processed).
         previous_definition = definition_collection.setdefault(updated_definition['id'], {})
         _r_update(previous_definition, updated_definition)
+
+
+def get_defined_projects():
+    return _defined_projects
