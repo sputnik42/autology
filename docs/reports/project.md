@@ -103,8 +103,9 @@ mkl-project:
   # Identifier used to reference an organization that is responsible for this project. OPTIONAL
   organization: some_org_id
   
-  # Identifier used to reference customer information for this project. OPTIONAL
-  customer: some_customer_id
+  # Identifier used to reference customer information for this project. OPTIONAL Can also be a 
+  # customer definition, see Customer Data Model.
+  customer: some_customer_id 
   
   # NOTE:
   # The following fields are maintained by the reporting framework and should not be used for storing user-defined data

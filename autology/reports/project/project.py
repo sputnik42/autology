@@ -18,9 +18,9 @@ from autology.utilities import log_file as log_file_utils
 from autology.reports.timeline import keys as fm_keys
 
 # Constants:
-
-MAIN_TEMPLATE_PATH = pathlib.Path('project', 'index.html')
-PROJECT_TEMPLATE_PATH = pathlib.Path('project', 'project.html')
+PROJECT_KEY = 'mkl-project'
+ORGANIZATION_KEY = 'mkl-organization'
+CUSTOMER_KEY = 'mkl-customer'
 
 # This is a dictionary containing all of the defined projects, they key is a project identifier that is defined when
 # defining the project. Inside should be a dictionary containing a key of datetime object for an entry, and then the
@@ -52,15 +52,10 @@ def _build_report():
         else:
             orphaned_projects.append(project)
 
-        # Also need to provide a URL value for the projects
-        project['url'] = pathlib.Path('project', '{}.html'.format(project['id']))
-
         # Sort the logs that are stored on the project
         project['log'] = sorted(project.get('log', []), key=lambda x: x['time'])
 
         # Now generate a report for each of the projects.
-        print("Project: {}".format(project))
-
         url = publish('project', 'project', project=project)
         project['url'] = url
 
@@ -109,10 +104,10 @@ def _process_markdown(post):
 
     _process_yaml([post.metadata])
 
-    if 'mkl-project' in post.metadata and post.metadata['mkl-project'] and not isinstance(post['mkl-project'], dict):
+    if PROJECT_KEY in post.metadata and post.metadata[PROJECT_KEY] and not isinstance(post[PROJECT_KEY], dict):
 
-        # Then is clearly must be a string
-        project_definition = _defined_projects.setdefault(post['mkl-project'], {'id': post['mkl-project']})
+        # Spec says that this can only be a string
+        project_definition = _defined_projects.setdefault(post[PROJECT_KEY], {'id': post[PROJECT_KEY]})
         project_log = project_definition.setdefault('log', [])
         project_log.append(post)
 
@@ -136,41 +131,77 @@ def _process_yaml(documents):
 
         # Figure out if any of the documents contain definitions of project/organization/customers and if so, see if
         # the documents define them (i.e. have dictionaries), or if the document is just about the data.
-        if 'mkl-project' in document:
+        if PROJECT_KEY in document:
 
-            project_definition = document['mkl-project']
+            project_definition = document[PROJECT_KEY]
             if not isinstance(project_definition, dict):
                 continue
 
-            definition_collection = _defined_projects
-            updated_definition = project_definition
+            _handle_project_definition(project_definition)
 
-        elif 'mkl-organization' in document:
+        elif ORGANIZATION_KEY in document:
 
-            organization_definition = document['mkl-organization']
+            organization_definition = document[ORGANIZATION_KEY]
             if not isinstance(organization_definition, dict):
                 continue
 
-            definition_collection = _defined_organizations
-            updated_definition = organization_definition
+            _handle_organization_definition(organization_definition)
 
-        elif 'mkl-customer' in document:
+        elif CUSTOMER_KEY in document:
 
-            customer_definition = document['mkl-customer']
+            customer_definition = document[CUSTOMER_KEY]
             if not isinstance(customer_definition, dict):
                 continue
 
-            definition_collection = _defined_customers
-            updated_definition = customer_definition
-
+            _handle_customer_definition(customer_definition)
         else:
             continue
 
-        # Update the values in the previous definition, otherwise it is the new definition.  This is because the
-        # definition_collection may already contain some values from files before (i.e. received markdown files about
-        # working on the project before the definition yaml file was processed).
-        previous_definition = definition_collection.setdefault(updated_definition['id'], {})
-        _r_update(previous_definition, updated_definition)
+
+def _handle_organization_definition(definition):
+    """Process an organization definition."""
+    # Check to see if there are any projects defined, remove them from this definition of the organization, and then
+    # add them to the list of defined projects (setting the organization key in the project).
+    defined_projects = definition.pop('projects', [])
+    if not isinstance(defined_projects, list):
+        defined_projects = [defined_projects]
+
+    previous_definition = _defined_organizations.setdefault(definition['id'], {})
+    _r_update(previous_definition, definition)
+
+    # Store the defined projects
+    for project in defined_projects:
+
+        if not isinstance(project, dict):
+            project = {'id': project}
+
+        project['organization'] = definition['id']
+        _handle_project_definition(project)
+
+
+def _handle_project_definition(definition):
+    """Process a project definition."""
+    defined_customers = definition.pop('customer', [])
+    if not isinstance(defined_customers, list):
+        defined_customers = [defined_customers]
+
+    previous_definition = _defined_projects.setdefault(definition['id'], {})
+    _r_update(previous_definition, definition)
+
+    # Store the defined customers
+    for customer in defined_customers:
+
+        if not isinstance(customer, dict):
+            customer = {'id': customer}
+
+        _handle_customer_definition(customer)
+
+
+def _handle_customer_definition(definition):
+    """Process customer definition"""
+    # A project can define the customer as an identifier or as a dictionary.
+    previous_definition = _defined_customers.setdefault(definition['id'], {})
+    _r_update(previous_definition, definition)
 
 
 def get_defined_projects():
