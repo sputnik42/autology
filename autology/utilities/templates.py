@@ -7,7 +7,7 @@ import re
 import shutil
 from autology.configuration import get_configuration_root
 
-DEFAULT_TEMPLATES_URL = 'https://github.com/MeerkatLabs/autology_templates/archive/v0.0.1.zip'
+DEFAULT_TEMPLATES_URL = 'https://github.com/MeerkatLabs/autology_templates/archive/v0.2.0.zip'
 
 
 def get_template_directory():
