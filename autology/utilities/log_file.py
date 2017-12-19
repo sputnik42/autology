@@ -58,12 +58,10 @@ def walk_log_files(directories):
                 if file_processor:
                     entry = file_processor.load(file_component)
                     entry_time = file_processor.lookup_time(entry)
-                    try:
-                        storage = sorted_files.setdefault(entry_time.year, {})
-                        storage = storage.setdefault(entry_time.month, {})
-                        storage.setdefault(entry_time.day, []).append(file_component)
-                    except:
-                        pass
+
+                    storage = sorted_files.setdefault(entry_time.year, {})
+                    storage = storage.setdefault(entry_time.month, {})
+                    storage.setdefault(entry_time.day, []).append(file_component)
 
     # Now need to process each of the files in order, and build up a master static page for the content.
     for year in sorted(sorted_files.keys()):
@@ -80,7 +78,7 @@ def walk_log_files(directories):
                 for content_file in time_files:
                     try:
                         yield date_to_process, content_file
-                    except:
+                    except Exception:
                         import traceback
                         print('Exception raised while processing: {}'.format(content_file))
                         traceback.print_exc()

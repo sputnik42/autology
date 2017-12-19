@@ -38,7 +38,7 @@ def add_agent_information(search_path, file_component):
             for key in (fm_keys.AGENT_NAME, fm_keys.AGENT_VERSION, fm_keys.FILE_VERSION):
                 write_file = write_file or _check_set_value(agent_definition, key)
 
-        except (AttributeError|TypeError):
+        except (AttributeError | TypeError):
             entry.metadata[fm_keys.AGENT_DEFINITION] = DEFAULT_AGENT_DEFINTION
             write_file = True
 

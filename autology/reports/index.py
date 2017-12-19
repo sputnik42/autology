@@ -7,7 +7,6 @@ from autology.publishing import publish
 
 _reports = []
 
-INDEX_TEMPLATE_PATH = pathlib.Path('index', 'index.html')
 _index_stats = {
     'processed_files': 0,
     'num_days': 0,
@@ -39,7 +38,7 @@ def _new_report_handler(report=None):
 def _finish_processing():
     _index_stats['generated_date'] = datetime.datetime.now()
     _index_stats['execution_time'] = (_index_stats['end_time'] - _index_stats['start_time']).total_seconds()
-    url = publish('index', 'index', reports=_reports, stats=_index_stats)
+    publish('index', 'index', reports=_reports, stats=_index_stats)
 
 
 def _record_start_time():

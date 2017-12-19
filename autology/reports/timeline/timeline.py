@@ -1,7 +1,6 @@
 """
 Timeline report that will process all of the files into a timeline in order to be published to the log.
 """
-import pathlib
 from datetime import datetime, time
 
 from collections import namedtuple

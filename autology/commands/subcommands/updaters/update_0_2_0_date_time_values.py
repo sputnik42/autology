@@ -19,9 +19,7 @@ def change_date_time_values(search_path, file_component):
     """
     Will check to see if the file needs to be processed before updating the values.  Will then populate the new agent
     information with what should be used in the future.
-    :param year:
-    :param month:
-    :param day:
+    :param search_path:
     :param file_component:
     :return:
     """

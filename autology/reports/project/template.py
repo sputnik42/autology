@@ -4,8 +4,8 @@ from autology.reports.timeline.template import template_start as timeline_start,
 
 
 def register_template():
-    description = 'Inherits from timeline_base template, but also provides additional details about a project that was ' \
-                  'being worked on while the note was open.'
+    description = 'Inherits from timeline_base template, but also provides additional details about a project that ' \
+                  'was being worked on while the note was open.'
     return Template('project_base', template_start, template_end, description)
 
 

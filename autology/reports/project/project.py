@@ -1,9 +1,5 @@
 """Processes the front data in the markdown files to process project stat recordings."""
 import datetime
-import pathlib
-
-import frontmatter
-from yaml import load_all
 
 from autology import topics
 from autology.publishing import publish
@@ -84,16 +80,10 @@ def process_file(file, date):
     """
     file_processor = log_file_utils.get_file_processor(file)
 
-    try:
-        if file_processor.mime_type == 'text/markdown':
-            _process_markdown(file_processor.load(file))
-        elif file_processor.mime_type == 'application/x-yaml':
-            _process_yaml(file_processor.load(file))
-    except:
-        print('Error processing file: {}'.format(file))
-        import traceback
-        traceback.print_exc()
-        raise
+    if file_processor.mime_type == 'text/markdown':
+        _process_markdown(file_processor.load(file))
+    elif file_processor.mime_type == 'application/x-yaml':
+        _process_yaml(file_processor.load(file))
 
 
 def _process_markdown(post):

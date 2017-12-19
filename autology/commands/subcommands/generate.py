@@ -1,8 +1,4 @@
 """Sub command that will generate the content of the static site."""
-import datetime
-import pathlib
-import mimetypes
-import tzlocal
 
 from autology import topics
 from autology.configuration import get_configuration

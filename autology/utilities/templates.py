@@ -40,7 +40,12 @@ def install_template(templates_directory, template_definition):
 
 
 def _process_zip_file(template_file, templates_directory):
-    templates_path = None
+    """
+    Process a template that is defined in a zip file.
+    :param template_file:
+    :param templates_directory:
+    :return:
+    """
 
     # Extract the entire contents of the zip file and store them in the templates/output directory of the project area
     with zipfile.ZipFile(template_file) as template_zip:
