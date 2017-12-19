@@ -20,10 +20,6 @@ _day_content = []
 # Dates that have been collected
 _dates = []
 
-# Default template definitions
-TIMELINE_TEMPLATE_PATH = pathlib.Path('timeline', 'index.html')
-DAY_TEMPLATE_PATH = pathlib.Path('timeline', 'day.html')
-
 DayReport = namedtuple('DayReport', 'date url num_entries')
 
 
