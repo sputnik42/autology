@@ -21,6 +21,7 @@ def register_command(subparser):
 
 
 def _main(args):
+    """Process the arguments provided and update the files as necessary."""
     if args.files:
         _update_files()
 
@@ -29,6 +30,7 @@ def _main(args):
 
 
 def _update_files():
+    """Find each of the files in the log file and hand them to the file updaters for processing."""
     configuration_settings = get_configuration()
 
     # Need to find all of the files that are stored in the input_files directories in order to start building the
@@ -45,6 +47,7 @@ def _update_files():
 
 
 def _update_template(template_path):
+    """Update the output generation templates based on the file/uri provided."""
     template_definition = template_path
 
     # template output directory is output/templates, so need to create that location before pulling out the templates

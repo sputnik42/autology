@@ -21,5 +21,6 @@ def load_file(path):
 
 
 def register():
+    """Register the YAML mimetype and the YAML file processor."""
     log_file.register_mime_type('.yaml', MIME_TYPE)
     log_file.register_file_processor(MIME_TYPE, load_file)

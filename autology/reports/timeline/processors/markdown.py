@@ -39,6 +39,7 @@ def time_value(entry):
 
 
 def register():
+    """Register the markdown file processor."""
     log_file.register_file_processor(MIME_TYPE, load_file, time_value)
 
 

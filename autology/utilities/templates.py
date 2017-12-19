@@ -94,7 +94,7 @@ def _process_zip_file(template_file, templates_directory):
 
 
 def _process_directory(template_file, templates_directory):
-
+    """How to translate a cloned version of a template definition into an install (instead of a zip file)."""
     print('template_path: {}'.format(template_file))
     template_path = pathlib.Path(template_file)
 
@@ -127,6 +127,7 @@ def _process_directory(template_file, templates_directory):
 
 
 def _create_directory_name(name, version):
+    """Translate the template name and version into a directory name."""
     unallowed_characters = re.compile(r'[^-a-z0-9]+')
 
     dir_name = "{}-{}".format(name, version).lower()

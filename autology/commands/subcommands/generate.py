@@ -12,6 +12,7 @@ def register_command(subparser):
 
 
 def _main(args):
+    """Transform the markdown and other files into a static website."""
     configuration_settings = get_configuration()
 
     topics.Processing.BEGIN.publish()

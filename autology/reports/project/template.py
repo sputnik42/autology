@@ -10,6 +10,7 @@ def register_template():
 
 
 def template_start(**kwargs):
+    """Start a new template."""
     post = timeline_start(**kwargs)
     post.metadata['mkl-project'] = None
 
@@ -17,6 +18,7 @@ def template_start(**kwargs):
 
 
 def template_end(post, **kwargs):
+    """Post processing on the template after it has been saved by the user."""
     post = timeline_end(post, **kwargs)
 
     return post

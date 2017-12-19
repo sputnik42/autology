@@ -195,4 +195,5 @@ def _handle_customer_definition(definition):
 
 
 def get_defined_projects():
+    """Return all of the projects that have been defined by the log entries."""
     return _defined_projects

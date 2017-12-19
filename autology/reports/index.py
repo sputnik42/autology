@@ -5,8 +5,10 @@ import pathlib
 from autology import topics
 from autology.publishing import publish
 
+# Collection of all of the reports that have been filed by other plugins
 _reports = []
 
+# Default Stats definition so that there are not undefined value errors.
 _index_stats = {
     'processed_files': 0,
     'num_days': 0,
@@ -36,24 +38,29 @@ def _new_report_handler(report=None):
 
 
 def _finish_processing():
+    """Publish the index after all of the reports have been registered by the plugins."""
     _index_stats['generated_date'] = datetime.datetime.now()
     _index_stats['execution_time'] = (_index_stats['end_time'] - _index_stats['start_time']).total_seconds()
     publish('index', 'index', reports=_reports, stats=_index_stats)
 
 
 def _record_start_time():
+    """Record the start time of processing."""
     _index_stats['start_time'] = datetime.datetime.now()
 
 
 def _record_end_time():
+    """Record end time of processing."""
     _index_stats['end_time'] = datetime.datetime.now()
 
 
 def _count_processed_files(file, date):
+    """Count the number of files that have been processed."""
     count = _index_stats.setdefault('processed_files', 0)
     _index_stats['processed_files'] = count + 1
 
 
 def _count_days(date):
+    """Count the number of days that have been processed."""
     count = _index_stats.setdefault('num_days', 0)
     _index_stats['num_days'] = count + 1

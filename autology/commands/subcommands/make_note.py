@@ -41,11 +41,7 @@ def register_command(subparser):
 
 
 def _main(args):
-    """
-    Create a new note file in the correct location.
-    :param args:
-    :return:
-    """
+    """ Create a new note file in the correct location. """
     loaded_templates = {}
 
     for ep in iter_entry_points(group='autology_templates'):
@@ -81,6 +77,7 @@ def _main(args):
 
 
 def _create_note(template, start_time, end_time):
+    """Create a new note and display an editor for that note."""
     post = template.start(start_time=start_time, end_time=end_time)
 
     directory_structure = pathlib.Path(get_configuration().processing.inputs[0])

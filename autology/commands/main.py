@@ -26,6 +26,7 @@ def _load_plugins():
 
 
 def main():
+    """Load up all of the plugins and determine which of the sub-commands to execute."""
     parser = _build_arguments()
     args = parser.parse_args()
 
