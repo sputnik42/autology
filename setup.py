@@ -4,7 +4,7 @@ setup(
     name='autology',
     version='0.2.0',
     packages=find_packages(),
-    url='',
+    url='https://github.com/MeerkatLabs/autology/',
     license='MIT',
     author='Robert Robinson',
     author_email='rerobins@meerkatlabs.org',
