@@ -65,8 +65,6 @@ def walk_log_files(directories):
                     except:
                         pass
 
-    dates = []
-
     # Now need to process each of the files in order, and build up a master static page for the content.
     for year in sorted(sorted_files.keys()):
         month_files = sorted_files[year]
@@ -78,16 +76,11 @@ def walk_log_files(directories):
                 time_files = day_files[day]
 
                 date_to_process = datetime.date(year, month, day)
-                # topics.Processing.DAY_START.publish(date=date_to_process)
 
                 for content_file in time_files:
                     try:
                         yield date_to_process, content_file
-                        # topics.Processing.PROCESS_FILE.publish(file=content_file, date=date_to_process)
                     except:
                         import traceback
                         print('Exception raised while processing: {}'.format(content_file))
                         traceback.print_exc()
-
-                dates.append(date_to_process)
-                # topics.Processing.DAY_END.publish(date=date_to_process)
