@@ -49,7 +49,7 @@ def _build_report():
             orphaned_projects.append(project)
 
         # Sort the logs that are stored on the project
-        project['log'] = sorted(project.get('log', []), key=lambda x: x['time'])
+        project['log'] = sorted(project.get('log', []), key=lambda x: x.metadata['time'])
 
         # Now generate a report for each of the projects.
         url = publish('project', 'project', project=project)
@@ -68,7 +68,7 @@ def _build_report():
     topics.Reporting.REGISTER_REPORT.publish(report=Report('Project', 'List of all project files', url))
 
 
-def process_file(file, date):
+def process_file(entry):
     """
     Process the file.
 
@@ -78,32 +78,34 @@ def process_file(file, date):
 
     It is not guaranteed that the files that are being processed will be processed in order.
     """
-    file_processor = log_file_utils.get_file_processor(file)
 
-    if file_processor.mime_type == 'text/markdown':
-        _process_markdown(file_processor.load(file))
-    elif file_processor.mime_type == 'application/x-yaml':
-        _process_yaml(file_processor.load(file))
+    try:
+        if entry.mime_type == 'text/markdown':
+            _process_markdown(entry)
+        elif entry.mime_type == 'application/x-yaml':
+            _process_yaml(entry.content)
+    except:
+        print('Error processing file: {}'.format(entry.file))
+        import traceback
+        traceback.print_exc()
+        raise
 
 
 def _process_markdown(post):
     """Process the front-matter contents, and store the markdown if necessary."""
+    _process_yaml(post.metadata)
 
-    if not post.keys():
-        return
-
-    _process_yaml([post.metadata])
-
-    if PROJECT_KEY in post.metadata and post.metadata[PROJECT_KEY] and not isinstance(post[PROJECT_KEY], dict):
+    if PROJECT_KEY in post.metadata and post.metadata[PROJECT_KEY] and not isinstance(post.metadata[PROJECT_KEY], dict):
 
         # Spec says that this can only be a string
-        project_definition = _defined_projects.setdefault(post[PROJECT_KEY], {'id': post[PROJECT_KEY]})
+        project_definition = _defined_projects.setdefault(post.metadata[PROJECT_KEY],
+                                                          {'id': post.metadata[PROJECT_KEY]})
         project_log = project_definition.setdefault('log', [])
         project_log.append(post)
 
         # Calculate how long the event lasts
-        log_date = post[fm_keys.TIME]
-        log_end_date = post[fm_keys.END_TIME]
+        log_date = post.metadata[fm_keys.TIME]
+        log_end_date = post.metadata[fm_keys.END_TIME]
         duration = log_end_date - log_date
         time_on_project = project_definition.get('duration', datetime.timedelta())
         project_definition['duration'] = time_on_project + duration
@@ -112,40 +114,33 @@ def _process_markdown(post):
         post.metadata['duration'] = duration
 
 
-def _process_yaml(documents):
-    """Process the documents update data structures according to the data values."""
-    if documents is None:
-        documents = []
+def _process_yaml(document):
+    """Process the document update data structures according to the data values."""
+    # Figure out if any of the documents contain definitions of project/organization/customers and if so, see if
+    # the documents define them (i.e. have dictionaries), or if the document is just about the data.
+    if PROJECT_KEY in document:
 
-    for document in documents:
+        project_definition = document[PROJECT_KEY]
+        if not isinstance(project_definition, dict):
+            return
 
-        # Figure out if any of the documents contain definitions of project/organization/customers and if so, see if
-        # the documents define them (i.e. have dictionaries), or if the document is just about the data.
-        if PROJECT_KEY in document:
+        _handle_project_definition(project_definition)
 
-            project_definition = document[PROJECT_KEY]
-            if not isinstance(project_definition, dict):
-                continue
+    elif ORGANIZATION_KEY in document:
 
-            _handle_project_definition(project_definition)
+        organization_definition = document[ORGANIZATION_KEY]
+        if not isinstance(organization_definition, dict):
+            return
 
-        elif ORGANIZATION_KEY in document:
+        _handle_organization_definition(organization_definition)
 
-            organization_definition = document[ORGANIZATION_KEY]
-            if not isinstance(organization_definition, dict):
-                continue
+    elif CUSTOMER_KEY in document:
 
-            _handle_organization_definition(organization_definition)
+        customer_definition = document[CUSTOMER_KEY]
+        if not isinstance(customer_definition, dict):
+            return
 
-        elif CUSTOMER_KEY in document:
-
-            customer_definition = document[CUSTOMER_KEY]
-            if not isinstance(customer_definition, dict):
-                continue
-
-            _handle_customer_definition(customer_definition)
-        else:
-            continue
+        _handle_customer_definition(customer_definition)
 
 
 def _handle_organization_definition(definition):

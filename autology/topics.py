@@ -28,8 +28,7 @@ class Processing(PubSubEnumMixin, enum.Enum):
       parameters: date - datetime.date object for the day that was processed.
     PROCESS_FILE -
       parameters:
-        file - the file that should be looked over.
-        date - the date that the file was saved in.
+        entry: autology.reports.models.Entry tuple
     BEGIN -
       Event that is fired off before processing files.
       parameters: none

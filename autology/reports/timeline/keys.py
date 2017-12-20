@@ -8,5 +8,6 @@ FILE_VERSION = 'file_definition'
 TIME = 'time'
 END_TIME = 'end_time'
 LOCATION = 'location'
+ACTIVITIES = 'activities'
 
 CURRENT_FILE_VERSION = Version.coerce('0.2.0')

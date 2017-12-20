@@ -1,8 +1,13 @@
 """
-Defines the yaml file processor.
+Defines the yaml file processor.  YAML files must have a document at the beginning that provides metadata about the
+file that is being injected.  For example it must contain the metadata showing activities, times and the information
+about the version information.
 """
 import yaml
+import frontmatter
 from autology.utilities import log_file
+from autology.reports.models import Entry
+from autology.reports.timeline import keys as fmkeys
 
 
 MIME_TYPE = 'application/x-yaml'
@@ -15,9 +20,14 @@ def load_file(path):
     :return:
     """
     with path.open() as loaded_file:
-        data = [d for d in yaml.load_all(loaded_file)]
+        post = frontmatter.load(loaded_file)
 
-    return data
+    post.metadata = log_file.process_datetimes(post.metadata)
+
+    return [
+        Entry(post[fmkeys.TIME], MIME_TYPE, post.metadata, log_file.process_datetimes(content), path)
+        for content in yaml.load_all(post.content) if content
+    ]
 
 
 def register():

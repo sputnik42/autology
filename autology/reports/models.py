@@ -7,3 +7,6 @@ Report = namedtuple('Report', 'name description url')
 
 # Template definition used to register the input template files for the logs.
 Template = namedtuple('Template', 'name start end description')
+
+# Log file definition
+Entry = namedtuple('Entry', 'date mime_type metadata content file')

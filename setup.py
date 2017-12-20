@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='autology',
-    version='0.2.0',
+    version='0.3.0-dev',
     packages=find_packages(),
     url='https://github.com/MeerkatLabs/autology/',
     license='MIT',
@@ -44,6 +44,7 @@ setup(
                              'project_report=autology.reports.project:register_plugin',
                              'publishing=autology.publishing:register_plugin',
                              'storage=autology.storage:register_plugin',
+                             'simple=autology.reports.simple:register_plugin',
                              ],
         'autology_commands': ['generate=autology.commands.subcommands.generate:register_command',
                               'serve=autology.commands.subcommands.serve:register_command',

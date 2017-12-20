@@ -24,8 +24,8 @@ def _find_all_project_ids():
     """Walk all of the log files, and then retrieve the project definitions."""
     configuration_settings = get_configuration()
 
-    for date_to_process, content_file in log_file.walk_log_files(configuration_settings.processing.inputs):
-        project.process_file(content_file, date_to_process)
+    for entry in log_file.walk_log_files(configuration_settings.processing.inputs):
+        project.process_file(entry)
 
     print('Defined Projects: ')
     for project_id in sorted(project.get_defined_projects().keys()):

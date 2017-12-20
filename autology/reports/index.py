@@ -54,7 +54,7 @@ def _record_end_time():
     _index_stats['end_time'] = datetime.datetime.now()
 
 
-def _count_processed_files(file, date):
+def _count_processed_files(entry):
     """Count the number of files that have been processed."""
     count = _index_stats.setdefault('processed_files', 0)
     _index_stats['processed_files'] = count + 1

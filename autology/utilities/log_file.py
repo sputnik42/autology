@@ -3,19 +3,24 @@ import mimetypes
 import datetime
 import tzlocal
 import pathlib
+import pytz
+from autology.configuration import get_configuration
 
 from collections import namedtuple
 
 _file_processors = {}
 
 
-_FileProcessor = namedtuple('FileProcessor', 'mime_type load lookup_time')
-DEFAULT_FILE_PROCESSOR = _FileProcessor('undefined', lambda x: None, lambda x: default_time_getter(x))
+_FileProcessor = namedtuple('FileProcessor', 'mime_type load')
+_LogEntry = namedtuple('LogEntry', 'date file file_processor')
 
 
 def register_mime_type(file_extension, mime_type):
     """Register the mime types in the system library. """
-    mimetypes.add_type(mime_type, file_extension)
+
+    # Check to see if it's defined before setting it
+    if file_extension not in mimetypes.guess_all_extensions(mime_type):
+        mimetypes.add_type(mime_type, file_extension)
 
 
 def lookup_mime_type(file_component):
@@ -25,25 +30,40 @@ def lookup_mime_type(file_component):
     return file_type
 
 
-def default_time_getter(file):
-    """Return localized now when time getter not defined."""
-    return tzlocal.get_localzone().localize(datetime.datetime.now())
-
-
-def register_file_processor(mime_type, file_loader, time_getter=default_time_getter):
+def register_file_processor(mime_type, file_loader):
     """Register file processor for specified mime_type."""
-    _file_processors[mime_type] = _FileProcessor(mime_type, file_loader, time_getter)
+    _file_processors[mime_type] = _FileProcessor(mime_type, file_loader)
 
 
 def get_file_processor(file):
     """Retrieve the file processor for the provided file."""
     mime_type = lookup_mime_type(file)
-    return _file_processors.get(mime_type, DEFAULT_FILE_PROCESSOR)
+    return _file_processors.get(mime_type, None)
+
+
+def process_datetimes(dictionary):
+    """
+    Translate all of the datetime objects that are stored in the front matter and make them timezone aware.
+    :param dictionary: the dictionary containing the values to process.  This will need to be called recursively on all
+    dictionaries contained within.
+    :return:
+    """
+    for key in dictionary.keys():
+        if hasattr(dictionary[key], 'tzinfo') and dictionary[key].tzinfo is None:
+            # All of the values read in are parsed into UTC time, yaml does this conversion for us when there is
+            # timezone information
+            utc_value = pytz.utc.localize(dictionary[key])
+            site_timezone = pytz.timezone(get_configuration().site.timezone)
+            dictionary[key] = utc_value.astimezone(site_timezone)
+        elif hasattr(dictionary[key], 'keys'):
+            process_datetimes(dictionary[key])
+
+    return dictionary
 
 
 def walk_log_files(directories):
     """Generator that will walk through all of the log files and yield each file in datetime order."""
-    sorted_files = {}
+    log_files = []
 
     # Need to find all of the files that are stored in the input_files directories in order to start building the
     # reports that will be used to generate the static log files.
@@ -56,29 +76,26 @@ def walk_log_files(directories):
                 file_processor = get_file_processor(file_component)
 
                 if file_processor:
-                    entry = file_processor.load(file_component)
-                    entry_time = file_processor.lookup_time(entry)
+                    entries = file_processor.load(file_component)
 
-                    storage = sorted_files.setdefault(entry_time.year, {})
-                    storage = storage.setdefault(entry_time.month, {})
-                    storage.setdefault(entry_time.day, []).append(file_component)
+                    if entries:
+                        # entries is either a log entry data model or a list of them.
+                        try:
+                            entry_time = entries.date
+                        except AttributeError:
+                            entry_time = entries[0].date
 
-    # Now need to process each of the files in order, and build up a master static page for the content.
-    for year in sorted(sorted_files.keys()):
-        month_files = sorted_files[year]
+                        log_files.append(_LogEntry(entry_time, file_component, file_processor))
 
-        for month in sorted(month_files.keys()):
-            day_files = month_files[month]
+    log_files = sorted(log_files, key=lambda x: x.date)
 
-            for day in sorted(day_files.keys()):
-                time_files = day_files[day]
+    for log_entry in log_files:
+        # Load up the content of the file and provide all of the documents that are contained with the metadata, some
+        # files provide multiple contents, so need to be able to handle that and yield them appropriately.
+        loaded_entries = log_entry.file_processor.load(log_entry.file)
 
-                date_to_process = datetime.date(year, month, day)
-
-                for content_file in time_files:
-                    try:
-                        yield date_to_process, content_file
-                    except Exception:
-                        import traceback
-                        print('Exception raised while processing: {}'.format(content_file))
-                        traceback.print_exc()
+        if hasattr(loaded_entries, 'append'):
+            for entry in loaded_entries:
+                yield entry
+        else:
+            yield loaded_entries
