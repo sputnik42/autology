@@ -4,6 +4,10 @@ the plugin defined in the command line arguments.  This command will then decide
 data stream.
 """
 from autology.utilities import injectors
+from datetime import datetime
+import tzlocal
+
+DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 
 def register_command(subparser):
@@ -25,4 +29,6 @@ def _main(args):
         print('Could not find injector defined by: {}'.format(args.injector))
         return
 
-    injector(args.file, args.date)
+    date_value = tzlocal.get_localzone().localize(datetime.strptime(args.date, DATE_FORMAT))
+
+    injector(args.file, date_value)
